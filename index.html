@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Cinepax — Pakistan's largest cinema screens. Book tickets, pick your exact seat, and find a cinema near you.">
+<title>Cinepax — Book Movie Tickets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Mukta:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #1b1035;
+    --bg-raised: #241443;
+    --bg-card: #2b1850;
+    --magenta: #e8467c;
+    --magenta-bright: #f2608f;
+    --marigold: #f2a93c;
+    --marigold-bright: #ffc266;
+    --teal: #1fa7a0;
+    --teal-bright: #29c4bc;
+    --cream: #fdf3e0;
+    --muted: #b3a2d6;
+    --line: rgba(242,169,60,0.2);
+    --seat-taken: #443368;
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+  html{ scroll-behavior: smooth; }
+  html, body{ max-width: 100%; overflow-x: hidden; }
+
+  body{
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'Mukta', sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  a{ color: inherit; text-decoration: none; }
+  img, svg{ display:block; max-width:100%; }
+  button{ font-family: inherit; }
+
+  .skip-link{
+    position: absolute; left: -999px; top: 0;
+    background: var(--marigold); color: #1b1035;
+    padding: 12px 20px; font-weight: 700; z-index: 999;
+  }
+  .skip-link:focus{ left: 12px; top: 12px; }
+
+  :focus-visible{ outline: 3px solid var(--marigold-bright); outline-offset: 2px; }
+
+  .display{ font-family: 'Baloo 2', sans-serif; font-weight: 700; letter-spacing: 0.01em; line-height: 1; }
+  .mono{ font-family: 'IBM Plex Mono', monospace; }
+  .eyebrow{
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase; letter-spacing: 0.16em;
+    font-size: 0.7rem; color: var(--marigold-bright);
+  }
+
+  /* ===== Header ===== */
+  header{
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(27,16,53,0.94);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-bar{
+    display:flex; align-items:center; justify-content: space-between;
+    padding: 14px 20px; max-width: 1200px; margin: 0 auto;
+  }
+  .brand .name{
+    font-family: 'Baloo 2', sans-serif; font-weight: 800;
+    font-size: 1.7rem; color: var(--cream); letter-spacing: 0.01em;
+  }
+  .menu-toggle{
+    background: none; border: 1px solid var(--line); border-radius: 8px;
+    width: 44px; height: 44px; display:flex; flex-direction: column;
+    align-items:center; justify-content:center; gap: 5px; cursor:pointer;
+  }
+  .menu-toggle span, .menu-toggle::before, .menu-toggle::after{
+    content:''; display:block; width: 20px; height: 2px; background: var(--marigold);
+  }
+
+  .nav-overlay{
+    position: fixed; inset: 0; background: var(--bg); z-index: 200;
+    display: none; flex-direction: column; padding: 20px; overflow-y: auto;
+  }
+  .nav-overlay.open{ display:flex; }
+  .nav-overlay-top{ display:flex; justify-content: space-between; align-items:center; margin-bottom: 32px; }
+  .nav-grid{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex: 1; }
+  @media (max-width: 340px){ .nav-grid{ grid-template-columns: 1fr; } }
+  .nav-grid a{
+    background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 20px 14px; font-family: 'Baloo 2', sans-serif; font-weight: 600; font-size: 1.2rem;
+    color: var(--cream); display:flex; align-items:center;
+  }
+  .nav-grid a:nth-child(4n+1){ border-color: rgba(232,70,124,0.35); }
+  .nav-grid a:nth-child(4n+2){ border-color: rgba(31,167,160,0.35); }
+  .nav-grid a:hover, .nav-grid a:focus-visible{ border-color: var(--marigold); color: var(--marigold-bright); }
+  .nav-overlay-footer{
+    margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line);
+    font-size: 0.85rem; color: var(--muted); display: flex; flex-direction: column; gap: 8px;
+  }
+
+  /* ===== Hero =====
+     The one bold gesture: a scalloped canopy band, like the painted
+     valance above a truck windscreen. Used once, here only — the rest
+     of the page stays calm around it. */
+  .arch-band{
+    height: 26px;
+    background: repeating-linear-gradient(90deg,
+      var(--marigold) 0 20px,
+      var(--magenta) 20px 40px,
+      var(--teal) 40px 60px);
+    -webkit-mask-image: radial-gradient(circle at 10px 2px, transparent 11px, black 11.5px);
+    mask-image: radial-gradient(circle at 10px 2px, transparent 11px, black 11.5px);
+    -webkit-mask-size: 20px 100%;
+    mask-size: 20px 100%;
+    -webkit-mask-repeat: repeat-x;
+    mask-repeat: repeat-x;
+  }
+
+  .location-picker{
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--bg-card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 14px; margin-bottom: 18px; max-width: 100%;
+  }
+  .location-picker svg{ flex-shrink: 0; width: 16px; height: 16px; }
+  .location-picker svg path{ fill: var(--marigold-bright); }
+  .location-picker select{
+    appearance: none; -webkit-appearance: none; background: transparent; border: none;
+    color: var(--cream); font-family: 'Mukta', sans-serif; font-weight: 600; font-size: 0.95rem;
+    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    padding-right: 20px;
+    background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position: right 4px top 55%, right 0px top 55%;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+  }
+  .location-picker select:focus{ outline: none; }
+  .location-picker select option{ background: var(--bg-card); color: var(--cream); }
+
+  .hero{ padding: 44px 20px 40px; border-bottom: 1px solid var(--line); }
+  @media (max-width: 360px){ .hero{ padding: 32px 16px 32px; } }
+  .hero-inner{ max-width: 1200px; margin: 0 auto; }
+  .hero .eyebrow{ margin-bottom: 14px; }
+  .hero h1{
+    font-size: clamp(3rem, 15vw, 6.5rem);
+    color: var(--cream);
+    word-break: break-word;
+  }
+  .hero h1 .accent{ color: var(--magenta-bright); }
+  .hero .sub{ margin-top: 18px; color: var(--muted); font-size: 1rem; max-width: 42ch; }
+  .hero-meta{
+    display: flex; gap: 18px; flex-wrap: wrap; margin-top: 22px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; color: var(--teal-bright);
+  }
+  .hero-ctas{ display:flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+
+  .btn{
+    font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 1.05rem;
+    padding: 14px 26px; border-radius: 10px; border: none; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary{ background: var(--magenta); color: var(--cream); }
+  .btn-primary:hover{ background: var(--magenta-bright); }
+  .btn-secondary{ background: transparent; border: 1.5px solid var(--teal); color: var(--teal-bright); }
+  .btn-secondary:hover{ background: rgba(31,167,160,0.1); }
+
+  /* ===== Section shell ===== */
+  section{ padding: 52px 20px; max-width: 1200px; margin: 0 auto; }
+  @media (max-width: 360px){ section{ padding: 40px 16px; } }
+  .section-head{ margin-bottom: 26px; }
+  .section-head h2{ font-size: clamp(1.8rem, 6vw, 2.3rem); color: var(--cream); margin-top: 6px; }
+  .section-head p{ color: var(--muted); margin-top: 8px; max-width: 55ch; }
+
+  /* ===== Now showing — ticket stubs ===== */
+  .film-row{
+    display: flex; gap: 16px; overflow-x: auto; padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity;
+    margin: 0 -20px; padding-left: 20px; padding-right: 20px;
+  }
+  @media (max-width: 360px){ .film-row{ margin: 0 -16px; padding-left: 16px; padding-right: 16px; } }
+  .stub{
+    flex: 0 0 78vw; max-width: 230px; scroll-snap-align: start;
+    background: var(--bg-card); border: 1px solid var(--line); border-radius: 14px;
+    overflow: hidden; cursor: pointer;
+  }
+  .stub:hover, .stub:focus-within{ border-color: var(--marigold); }
+  .stub-poster{
+    height: 130px; background: var(--bg-raised);
+    display:flex; align-items:center; justify-content:center; position: relative;
+  }
+  .stub-badge{
+    position:absolute; top: 10px; left: 10px; background: var(--marigold); color: #1b1035;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; padding: 4px 8px;
+    border-radius: 4px; letter-spacing: 0.05em;
+  }
+  .stub-poster .reel{ width: 40px; height: 40px; border: 3px solid var(--teal); border-radius: 50%; opacity: 0.5; position: relative; }
+  .stub-poster .reel::before{ content:''; position:absolute; inset: 8px; border: 3px solid var(--teal); border-radius: 50%; }
+  .stub-body{ padding: 14px; }
+  .stub-body h3{ font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 1.15rem; margin-bottom: 4px; }
+  .stub-body .meta{ color: var(--muted); font-size: 0.76rem; font-family: 'IBM Plex Mono', monospace; }
+  .stub-perf-h{ border-top: 1px dashed rgba(242,169,60,0.3); margin: 12px 0; }
+  .times{ display:flex; flex-wrap: wrap; gap: 8px; }
+  .times button{
+    background: transparent; border: 1px solid var(--magenta); color: var(--cream);
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.74rem; padding: 7px 10px;
+    border-radius: 7px; cursor: pointer;
+  }
+  .times button:hover, .times button:focus-visible{ background: var(--magenta); }
+  .times button.active{ background: var(--magenta); }
+
+  /* ===== Pick your seats ===== */
+  .seatmap-card{ background: var(--bg-card); border: 1px solid var(--line); border-radius: 16px; padding: 24px 16px; }
+  .seatmap-header h3{ font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 1.45rem; }
+  .seatmap-header .meta{ color: var(--muted); font-size: 0.85rem; font-family: 'IBM Plex Mono', monospace; margin-top: 2px; }
+
+  .screen{
+    margin: 28px auto 24px; width: 92%; max-width: 420px; height: 6px;
+    background: linear-gradient(90deg, transparent, var(--teal), transparent);
+    border-radius: 50%; position: relative;
+  }
+  .screen::after{
+    content: 'SCREEN'; position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; letter-spacing: 0.3em; color: var(--muted);
+  }
+
+  .seat-grid{ display: flex; flex-direction: column; gap: 8px; align-items: center; margin-top: 20px; }
+  .seat-row{ display:flex; align-items:center; gap: 6px; }
+  .row-label{ width: 18px; text-align:center; font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--muted); flex-shrink: 0; }
+  .seat{ width: 22px; height: 22px; border-radius: 6px 6px 9px 9px; background: var(--bg-raised); border: 1px solid var(--line); cursor: pointer; flex-shrink: 0; }
+  .seat.gold{ border-color: rgba(242,169,60,0.5); }
+  .seat.taken{ background: var(--seat-taken); border-color: var(--seat-taken); cursor: not-allowed; }
+  .seat.selected{ background: var(--magenta); border-color: var(--magenta); }
+  .seat:hover:not(.taken):not(.selected){ border-color: var(--marigold-bright); }
+  .aisle{ width: 14px; flex-shrink: 0; }
+
+  .seat-legend{ display:flex; gap: 18px; flex-wrap: wrap; justify-content:center; margin-top: 20px; font-size: 0.78rem; color: var(--muted); }
+  .seat-legend span{ display:flex; align-items:center; gap: 6px; }
+  .legend-dot{ width: 14px; height: 14px; border-radius: 5px; display:inline-block; }
+
+  .seatmap-footer{
+    display:flex; align-items:center; justify-content: space-between; margin-top: 24px;
+    padding-top: 18px; border-top: 1px solid var(--line); flex-wrap: wrap; gap: 14px;
+  }
+  .seatmap-price{ font-family: 'IBM Plex Mono', monospace; }
+  .seatmap-price .amt{ font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 1.5rem; color: var(--marigold-bright); }
+  .seatmap-footer .btn-primary{ flex: 1; justify-content: center; min-width: 160px; }
+
+  /* ===== Cinemas near you ===== */
+  .cinema-list{ display: grid; gap: 16px; }
+  @media(min-width: 720px){ .cinema-list{ grid-template-columns: 1fr 1fr; } }
+  .cinema-card{ background: var(--bg-card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+  .cinema-card h3{ font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 1.35rem; color: var(--marigold-bright); }
+  .cinema-card .addr{ color: var(--muted); font-size: 0.88rem; margin-top: 4px; }
+  .cinema-facts{ margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .fact{ background: var(--bg-raised); border-radius: 10px; padding: 10px 12px; }
+  .fact .eyebrow{ margin-bottom: 4px; }
+  .fact p{ font-size: 0.85rem; }
+  .cinema-card .btn-secondary{ margin-top: 16px; width: 100%; justify-content: center; padding: 10px; font-size: 0.95rem; }
+
+  /* ===== Loyalty ===== */
+  .loyalty{ border-top: 1px solid var(--line); text-align: left; }
+  .loyalty h2{ font-size: clamp(1.8rem, 7vw, 2.3rem); }
+  .loyalty p{ color: var(--muted); max-width: 46ch; margin: 12px 0 20px; }
+
+  /* ===== Footer ===== */
+  footer{ border-top: 1px solid var(--line); background: var(--bg-raised); padding: 40px 20px 28px; }
+  .footer-inner{ max-width: 1200px; margin: 0 auto; display: grid; gap: 28px; grid-template-columns: 1fr; }
+  @media(min-width: 720px){ .footer-inner{ grid-template-columns: 1.4fr 1fr 1fr; } }
+  .footer-brand .name{ font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 1.6rem; color: var(--cream); }
+  .footer-brand p{ color: var(--muted); font-size: 0.85rem; margin-top: 8px; max-width: 34ch; }
+  .footer-col h4{ font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.12em; color: var(--marigold); margin-bottom: 12px; }
+  .footer-col ul{ list-style: none; display:flex; flex-direction: column; gap: 8px; }
+  .footer-col a{ color: var(--muted); font-size: 0.88rem; }
+  .footer-col a:hover{ color: var(--cream); }
+  .footer-bottom{
+    max-width: 1200px; margin: 28px auto 0; padding-top: 18px; border-top: 1px solid var(--line);
+    color: var(--muted); font-size: 0.78rem; display:flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<header>
+  <div class="nav-bar">
+    <a href="#top" class="brand" aria-label="Cinepax home"><span class="name">CINEPAX</span></a>
+    <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="navOverlay" aria-label="Open menu"><span></span></button>
+  </div>
+</header>
+
+<nav class="nav-overlay" id="navOverlay">
+  <div class="nav-overlay-top">
+    <span class="brand"><span class="name">CINEPAX</span></span>
+    <button class="menu-toggle" id="menuClose" aria-label="Close menu">✕</button>
+  </div>
+  <div class="nav-grid">
+    <a href="#showing">Now Showing</a>
+    <a href="#showing">Coming Soon</a>
+    <a href="#cinemas">Cinemas</a>
+    <a href="#loyalty">Loyalty</a>
+    <a href="#showing">Experiences</a>
+    <a href="#cinemas">Events</a>
+  </div>
+  <div class="nav-overlay-footer">
+    <a href="ratings.html">Ratings guide</a>
+    <a href="#top">Contact us</a>
+    <a href="#top">Terms &amp; privacy</a>
+  </div>
+</nav>
+
+<main id="main">
+
+  <div id="top">
+    <div class="arch-band" role="presentation"></div>
+    <div class="hero">
+      <div class="hero-inner">
+        <label class="location-picker" for="cinemaSelect">
+          <svg viewBox="0 0 24 24"><path d="M12 2C7.6 2 4 5.6 4 10c0 5.2 6.6 11.1 7.1 11.6.5.4 1.2.4 1.7 0C13.4 21.1 20 15.2 20 10c0-4.4-3.6-8-8-8zm0 10.5c-1.4 0-2.5-1.1-2.5-2.5S10.6 7.5 12 7.5s2.5 1.1 2.5 2.5-1.1 2.5-2.5 2.5z"></path></svg>
+          <select id="cinemaSelect">
+            <option value="amanah-mall" data-city="Lahore">Cinepax Amanah Mall — Lahore</option>
+            <option value="boulevard-mall" data-city="Hyderabad">Cinepax Boulevard Mall — Hyderabad</option>
+            <option value="hotelone" data-city="Faisalabad">Cinepax HotelOne — Faisalabad</option>
+            <option value="jinnah-park" data-city="Rawalpindi" selected>Cinepax Jinnah Park — Rawalpindi</option>
+            <option value="kings-mall" data-city="Gujranwala">Cinepax Kings Mall — Gujranwala</option>
+            <option value="mall-of-sialkot" data-city="Sialkot">Cinepax Mall of Sialkot — Sialkot</option>
+            <option value="nayyar-mall" data-city="Gujrat">Cinepax Nayyar Mall — Gujrat</option>
+            <option value="ocean-mall" data-city="Karachi">Cinepax Ocean Mall — Karachi</option>
+            <option value="packages-mall" data-city="Lahore">Cinepax Packages Mall — Lahore</option>
+            <option value="world-trade-center" data-city="Islamabad">Cinepax World Trade Center — Islamabad</option>
+          </select>
+        </label>
+        <p class="eyebrow">Now showing &middot; Cinepax Jinnah Park</p>
+        <h1 class="display">Carry On<br><span class="accent">Jatta 4</span></h1>
+        <p class="sub">Punjabi &middot; Comedy. Playing on our biggest screen at full scale — the way it's meant to be seen.</p>
+        <p class="hero-meta"><span>2D</span><span>&middot;</span><span>2h 34m</span><span>&middot;</span><span>Screen 2</span></p>
+        <div class="hero-ctas">
+          <a href="#seats" class="btn btn-primary">Book this showing</a>
+          <a href="#showing" class="btn btn-secondary">See all films</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="showing">
+    <div class="section-head">
+      <p class="eyebrow">In cinemas this week</p>
+      <h2 class="display">Now Showing</h2>
+      <p>Tap a showtime to load it into the seat map below.</p>
+    </div>
+    <div class="film-row">
+
+      <article class="stub">
+        <div class="stub-poster"><span class="stub-badge">2D &middot; Punjabi</span><div class="reel"></div></div>
+        <div class="stub-body">
+          <h3>Carry On Jatta 4</h3>
+          <p class="meta">Cinepax Jinnah Park &middot; Screen 2</p>
+          <div class="stub-perf-h"></div>
+          <div class="times"><button type="button" class="active">10:30 PM</button></div>
+        </div>
+      </article>
+
+      <article class="stub">
+        <div class="stub-poster"><span class="stub-badge">2D &middot; English</span><div class="reel"></div></div>
+        <div class="stub-body">
+          <h3>Moana</h3>
+          <p class="meta">Cinepax Jinnah Park &middot; Screen 1</p>
+          <div class="stub-perf-h"></div>
+          <div class="times"><button type="button">12:15 PM</button></div>
+        </div>
+      </article>
+
+      <article class="stub">
+        <div class="stub-poster"><span class="stub-badge">2D &middot; English</span><div class="reel"></div></div>
+        <div class="stub-body">
+          <h3>Spider-Man: Brand New Day</h3>
+          <p class="meta">Cinepax Jinnah Park &middot; Screen 3</p>
+          <div class="stub-perf-h"></div>
+          <div class="times"><button type="button">11:45 PM</button></div>
+        </div>
+      </article>
+
+      <article class="stub">
+        <div class="stub-poster"><span class="stub-badge">2D &middot; Urdu</span><div class="reel"></div></div>
+        <div class="stub-body">
+          <h3>Spider-Man: Brand New Day</h3>
+          <p class="meta">Cinepax Jinnah Park &middot; Screen 4</p>
+          <div class="stub-perf-h"></div>
+          <div class="times"><button type="button">9:15 PM</button></div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section id="seats">
+    <div class="section-head">
+      <p class="eyebrow">Reserved seating</p>
+      <h2 class="display">Pick Your Seats</h2>
+      <p>See exactly where you're sitting before you pay — no "best available" surprises.</p>
+    </div>
+
+    <div class="seatmap-card">
+      <div class="seatmap-header">
+        <h3>Carry On Jatta 4</h3>
+        <p class="meta">Sat, 08 Aug &middot; 10:30 PM &middot; Cinepax Jinnah Park, Screen 2</p>
+      </div>
+
+      <div class="screen" role="presentation"></div>
+
+      <div class="seat-grid" id="seatGrid">
+        <div class="seat-row">
+          <span class="row-label">A</span>
+          <button class="seat" aria-label="Seat A1"></button><button class="seat" aria-label="Seat A2"></button><button class="seat" aria-label="Seat A3"></button><button class="seat" aria-label="Seat A4"></button>
+          <span class="aisle"></span>
+          <button class="seat" aria-label="Seat A5"></button><button class="seat" aria-label="Seat A6"></button><button class="seat" aria-label="Seat A7"></button><button class="seat" aria-label="Seat A8"></button>
+        </div>
+        <div class="seat-row">
+          <span class="row-label">B</span>
+          <button class="seat" aria-label="Seat B1"></button><button class="seat taken" aria-label="Seat B2, taken" disabled></button><button class="seat" aria-label="Seat B3"></button><button class="seat" aria-label="Seat B4"></button>
+          <span class="aisle"></span>
+          <button class="seat" aria-label="Seat B5"></button><button class="seat" aria-label="Seat B6"></button><button class="seat taken" aria-label="Seat B7, taken" disabled></button><button class="seat" aria-label="Seat B8"></button>
+        </div>
+        <div class="seat-row">
+          <span class="row-label">C</span>
+          <button class="seat gold" aria-label="Seat C1, gold"></button><button class="seat gold" aria-label="Seat C2, gold"></button><button class="seat gold selected" aria-label="Seat C3, gold, selected"></button><button class="seat gold selected" aria-label="Seat C4, gold, selected"></button>
+          <span class="aisle"></span>
+          <button class="seat gold" aria-label="Seat C5, gold"></button><button class="seat gold" aria-label="Seat C6, gold"></button><button class="seat gold" aria-label="Seat C7, gold"></button><button class="seat gold" aria-label="Seat C8, gold"></button>
+        </div>
+        <div class="seat-row">
+          <span class="row-label">D</span>
+          <button class="seat gold" aria-label="Seat D1, gold"></button><button class="seat gold" aria-label="Seat D2, gold"></button><button class="seat gold" aria-label="Seat D3, gold"></button><button class="seat taken gold" aria-label="Seat D4, taken" disabled></button>
+          <span class="aisle"></span>
+          <button class="seat gold" aria-label="Seat D5, gold"></button><button class="seat gold" aria-label="Seat D6, gold"></button><button class="seat gold" aria-label="Seat D7, gold"></button><button class="seat gold" aria-label="Seat D8, gold"></button>
+        </div>
+      </div>
+
+      <div class="seat-legend">
+        <span><span class="legend-dot" style="background:var(--bg-raised); border:1px solid var(--line);"></span>Silver &mdash; Rs 650</span>
+        <span><span class="legend-dot" style="background:var(--bg-raised); border:1px solid rgba(242,169,60,0.5);"></span>Gold &mdash; Rs 900</span>
+        <span><span class="legend-dot" style="background:var(--magenta);"></span>Selected</span>
+        <span><span class="legend-dot" style="background:var(--seat-taken);"></span>Taken</span>
+      </div>
+
+      <div class="seatmap-footer">
+        <div class="seatmap-price">
+          <span class="eyebrow">2 seats selected</span><br>
+          <span class="amt" id="seatTotal">Rs 1,800</span>
+        </div>
+        <button type="button" class="btn btn-primary">Continue to pay</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="cinemas">
+    <div class="section-head">
+      <p class="eyebrow">Locations</p>
+      <h2 class="display">Cinemas Near You</h2>
+    </div>
+    <div class="cinema-list">
+
+      <div class="cinema-card">
+        <h3>Cinepax Jinnah Park</h3>
+        <p class="addr">Jinnah Park, Kechari Road, Rawalpindi &middot; 051-8467156</p>
+        <div class="cinema-facts">
+          <div class="fact"><p class="eyebrow">Parking</p><p>Free multi-level parking, 200+ bays, valet available on weekends.</p></div>
+          <div class="fact"><p class="eyebrow">Public transport</p><p>5 min walk from National Park Road bus stop (Route 15, 22).</p></div>
+        </div>
+        <a href="#showing" class="btn btn-secondary">View showtimes</a>
+      </div>
+
+      <div class="cinema-card">
+        <h3>Cinepax Packages Mall</h3>
+        <p class="addr">Walton Road, Lahore &middot; 042-111 246 372</p>
+        <div class="cinema-facts">
+          <div class="fact"><p class="eyebrow">Parking</p><p>Covered basement parking, 500+ bays, first 2 hrs free.</p></div>
+          <div class="fact"><p class="eyebrow">Public transport</p><p>Walton Road Metrobus stop directly outside the mall entrance.</p></div>
+        </div>
+        <a href="#showing" class="btn btn-secondary">View showtimes</a>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="loyalty">
+    <div class="loyalty">
+      <p class="eyebrow">Cinepax Loyalty</p>
+      <h2 class="display">Every ticket earns you the next one.</h2>
+      <p>Join for free and collect points on tickets, snacks, and birthday treats — redeemable at any Cinepax nationwide.</p>
+      <a href="#top" class="btn btn-primary">Join loyalty — it's free</a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="name">CINEPAX</span>
+      <p>Pakistan's largest cinema chain, playing across Karachi, Lahore, Islamabad, Rawalpindi and beyond.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Explore</h4>
+      <ul>
+        <li><a href="#showing">Now showing</a></li>
+        <li><a href="#showing">Coming soon</a></li>
+        <li><a href="#cinemas">Cinemas</a></li>
+        <li><a href="#loyalty">Loyalty</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="ratings.html">Ratings guide</a></li>
+        <li><a href="#top">Contact us</a></li>
+        <li><a href="#top">Terms &amp; conditions</a></li>
+        <li><a href="#top">Privacy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; 2026 Cinepax Limited</span>
+    <span>Redesign concept</span>
+  </div>
+</footer>
+
+<script>
+  const toggle = document.getElementById('menuToggle');
+  const overlay = document.getElementById('navOverlay');
+  const close = document.getElementById('menuClose');
+  function openNav(){ overlay.classList.add('open'); toggle.setAttribute('aria-expanded','true'); close.focus(); }
+  function closeNav(){ overlay.classList.remove('open'); toggle.setAttribute('aria-expanded','false'); toggle.focus(); }
+  toggle.addEventListener('click', openNav);
+  close.addEventListener('click', closeNav);
+  overlay.addEventListener('keydown', e => { if(e.key === 'Escape') closeNav(); });
+  overlay.querySelectorAll('a').forEach(a => a.addEventListener('click', closeNav));
+
+  const cinemaSelect = document.getElementById('cinemaSelect');
+  const heroEyebrow = document.querySelector('.hero .eyebrow');
+  const savedCinema = localStorage.getItem('cinepaxCinema');
+  if (savedCinema && cinemaSelect.querySelector(`option[value="${savedCinema}"]`)) {
+    cinemaSelect.value = savedCinema;
+  }
+  function updateCinemaLabel(){
+    const opt = cinemaSelect.options[cinemaSelect.selectedIndex];
+    heroEyebrow.textContent = 'Now showing \u00b7 ' + opt.textContent;
+  }
+  updateCinemaLabel();
+  cinemaSelect.addEventListener('change', () => {
+    localStorage.setItem('cinepaxCinema', cinemaSelect.value);
+    updateCinemaLabel();
+    // TODO: once backend is live, refetch now-showing films/showtimes for the selected cinema here
+  });
+
+  const PRICE = { silver: 650, gold: 900 };
+  const seatTotal = document.getElementById('seatTotal');
+  const seatGrid = document.getElementById('seatGrid');
+
+  function recalc(){
+    const selected = seatGrid.querySelectorAll('.seat.selected');
+    let total = 0;
+    selected.forEach(s => total += s.classList.contains('gold') ? PRICE.gold : PRICE.silver);
+    seatTotal.textContent = 'Rs ' + total.toLocaleString();
+    const label = seatTotal.previousElementSibling;
+    label.textContent = selected.length + (selected.length === 1 ? ' seat selected' : ' seats selected');
+  }
+
+  seatGrid.querySelectorAll('.seat:not(.taken)').forEach(seat => {
+    seat.addEventListener('click', () => { seat.classList.toggle('selected'); recalc(); });
+  });
+
+  document.querySelectorAll('.times button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.times button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const stub = btn.closest('.stub');
+      const title = stub.querySelector('h3').textContent;
+      const meta = stub.querySelector('.meta').textContent;
+      document.querySelector('.seatmap-header h3').textContent = title;
+      document.querySelector('.seatmap-header .meta').textContent = 'Sat, 08 Aug \u00b7 ' + btn.textContent + ' \u00b7 ' + meta;
+      document.getElementById('seats').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+
+<!-- ===== Cinepax Chat Widget ===== -->
+<!-- Paste this block just before </body> on every page. Requires the CSS variables
+     already defined in each page's <style> (--bg-card, --line, --magenta, etc). -->
+
+<style>
+  #chatToggle{
+    position: fixed; bottom: 20px; right: 20px; z-index: 300;
+    width: 56px; height: 56px; border-radius: 50%; border: none; cursor: pointer;
+    background: var(--magenta); color: var(--cream); display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  }
+  #chatToggle svg{ width: 26px; height: 26px; }
+  #chatToggle svg path{ fill: var(--cream); }
+
+  #chatPanel{
+    position: fixed; bottom: 88px; right: 16px; left: 16px; z-index: 300;
+    max-width: 380px; margin-left: auto;
+    background: var(--bg-card); border: 1px solid var(--line); border-radius: 16px;
+    display: none; flex-direction: column; height: min(70vh, 520px); overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  }
+  #chatPanel.open{ display: flex; }
+
+  #chatHeader{
+    padding: 14px 16px; border-bottom: 1px solid var(--line); display:flex; justify-content: space-between; align-items:center;
+  }
+  #chatHeader span{ font-family: 'Baloo 2', sans-serif; font-weight: 700; color: var(--cream); }
+  #chatClose{ background:none; border:none; color: var(--muted); font-size: 1.1rem; cursor:pointer; }
+
+  #chatMessages{ flex: 1; overflow-y: auto; padding: 14px 16px; display:flex; flex-direction: column; gap: 10px; }
+  .chat-msg{ font-size: 0.9rem; line-height: 1.4; max-width: 85%; padding: 9px 12px; border-radius: 12px; }
+  .chat-msg.user{ align-self: flex-end; background: var(--magenta); color: var(--cream); border-bottom-right-radius: 3px; }
+  .chat-msg.bot{ align-self: flex-start; background: var(--bg-raised); color: var(--cream); border: 1px solid var(--line); border-bottom-left-radius: 3px; }
+  .chat-msg.typing{ color: var(--muted); font-style: italic; }
+
+  #chatInputRow{ display:flex; gap: 8px; padding: 12px; border-top: 1px solid var(--line); }
+  #chatInput{
+    flex: 1; background: var(--bg-raised); border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 12px; color: var(--cream); font-size: 0.9rem; font-family: inherit; resize: none;
+  }
+  #chatInput:focus{ outline: none; border-color: var(--marigold); }
+  #chatSend{
+    background: var(--teal); color: var(--cream); border: none; border-radius: 10px;
+    padding: 0 16px; font-weight: 700; cursor: pointer; font-family: 'Baloo 2', sans-serif;
+  }
+  #chatSend:disabled{ opacity: 0.5; cursor: not-allowed; }
+</style>
+
+<button id="chatToggle" aria-label="Open chat assistant" aria-expanded="false">
+  <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"></path></svg>
+</button>
+
+<div id="chatPanel" role="dialog" aria-label="Cinepax chat assistant">
+  <div id="chatHeader">
+    <span>Ask Cinepax</span>
+    <button id="chatClose" aria-label="Close chat">✕</button>
+  </div>
+  <div id="chatMessages">
+    <div class="chat-msg bot">Hi! I can help with showtimes, ticket prices, ratings, or general questions about Cinepax. What do you need?</div>
+  </div>
+  <div id="chatInputRow">
+    <textarea id="chatInput" rows="1" placeholder="Type a message..."></textarea>
+    <button id="chatSend">Send</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const toggle = document.getElementById('chatToggle');
+  const panel = document.getElementById('chatPanel');
+  const closeBtn = document.getElementById('chatClose');
+  const messagesEl = document.getElementById('chatMessages');
+  const input = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('chatSend');
+
+  let history = []; // { role: 'user'|'assistant', content: '...' }
+
+  function openChat(){ panel.classList.add('open'); toggle.setAttribute('aria-expanded','true'); input.focus(); }
+  function closeChat(){ panel.classList.remove('open'); toggle.setAttribute('aria-expanded','false'); }
+  toggle.addEventListener('click', () => panel.classList.contains('open') ? closeChat() : openChat());
+  closeBtn.addEventListener('click', closeChat);
+
+  function addMessage(role, text){
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + (role === 'user' ? 'user' : 'bot');
+    div.textContent = text;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return div;
+  }
+
+  async function sendMessage(){
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    sendBtn.disabled = true;
+    addMessage('user', text);
+    history.push({ role: 'user', content: text });
+
+    const typingEl = addMessage('bot', 'Typing...');
+    typingEl.classList.add('typing');
+
+    try {
+      const res = await fetch('/.netlify/functions/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: history })
+      });
+      const data = await res.json();
+      typingEl.remove();
+      if (data.reply) {
+        addMessage('bot', data.reply);
+        history.push({ role: 'assistant', content: data.reply });
+      } else {
+        addMessage('bot', "Sorry, something went wrong. Please try again.");
+      }
+    } catch (err) {
+      typingEl.remove();
+      addMessage('bot', "Sorry, I couldn't connect. Please try again in a moment.");
+    } finally {
+      sendBtn.disabled = false;
+    }
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+})();
+</script>
+<!-- ===== End Cinepax Chat Widget ===== -->
+
+</body>
+</html>
