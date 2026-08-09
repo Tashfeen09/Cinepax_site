@@ -146,6 +146,13 @@
         <div class="field">
           <label>Poster image</label>
           <input type="file" id="movieposterFile" accept="image/*">
+          <div id="cropWrap" style="display:none; margin-top:10px;">
+            <p style="font-size:0.78rem; color:var(--muted); margin-bottom:6px;">Drag to reposition, pinch/scroll to zoom — it'll always crop to a clean poster ratio, never stretched.</p>
+            <div id="cropStage" style="position:relative; width:180px; aspect-ratio:2/3; overflow:hidden; border-radius:10px; border:1px solid var(--line); background:var(--bg-raised); touch-action:none; cursor:grab;">
+              <img id="cropImg" style="position:absolute; max-width:none; user-select:none; -webkit-user-drag:none;">
+            </div>
+            <input type="range" id="cropZoom" min="1" max="3" step="0.01" value="1" style="width:180px; margin-top:8px;">
+          </div>
           <img id="moviePosterPreview" class="poster-preview" style="margin-top:8px; display:none;">
         </div>
         <div class="field-row two">
@@ -333,19 +340,116 @@ el('toggleMovieForm').addEventListener('click', () => {
 });
 el('cancelMovieBtn').addEventListener('click', () => el('movieForm').classList.remove('open'));
 
+// ===== Poster cropper: always exports a fixed 2:3 ratio image, never stretched =====
+const CROP_RATIO = 2 / 3; // width:height — standard poster ratio
+const CROP_OUT_W = 600;
+const CROP_OUT_H = 900;
+let cropImgNatural = { w: 0, h: 0 };
+let cropState = { scale: 1, offsetX: 0, offsetY: 0, minScale: 1 };
+let croppedBlob = null;
+let dragging = false, dragStart = { x: 0, y: 0 }, dragOrigin = { x: 0, y: 0 };
+
+const stageW = 180, stageH = 270; // matches #cropStage CSS size (180 x 180*3/2)
+
+function applyCropTransform(){
+  const img = el('cropImg');
+  const w = cropImgNatural.w * cropState.scale;
+  const h = cropImgNatural.h * cropState.scale;
+  img.style.width = w + 'px';
+  img.style.height = h + 'px';
+  img.style.left = cropState.offsetX + 'px';
+  img.style.top = cropState.offsetY + 'px';
+}
+
+function clampOffset(){
+  const w = cropImgNatural.w * cropState.scale;
+  const h = cropImgNatural.h * cropState.scale;
+  cropState.offsetX = Math.min(0, Math.max(stageW - w, cropState.offsetX));
+  cropState.offsetY = Math.min(0, Math.max(stageH - h, cropState.offsetY));
+}
+
 el('movieposterFile').addEventListener('change', () => {
   const file = el('movieposterFile').files[0];
   if (!file) return;
   const url = URL.createObjectURL(file);
-  el('moviePosterPreview').src = url;
-  el('moviePosterPreview').style.display = 'block';
+  const img = el('cropImg');
+  img.onload = () => {
+    cropImgNatural = { w: img.naturalWidth, h: img.naturalHeight };
+    // Minimum scale so the image always fully covers the crop stage (no gaps, no stretching)
+    cropState.minScale = Math.max(stageW / cropImgNatural.w, stageH / cropImgNatural.h);
+    cropState.scale = cropState.minScale;
+    cropState.offsetX = (stageW - cropImgNatural.w * cropState.scale) / 2;
+    cropState.offsetY = (stageH - cropImgNatural.h * cropState.scale) / 2;
+    el('cropZoom').min = cropState.minScale;
+    el('cropZoom').max = cropState.minScale * 3;
+    el('cropZoom').step = (cropState.minScale * 2) / 100;
+    el('cropZoom').value = cropState.minScale;
+    applyCropTransform();
+    el('cropWrap').style.display = 'block';
+    updateCroppedPreview();
+  };
+  img.src = url;
 });
+
+el('cropZoom').addEventListener('input', () => {
+  cropState.scale = parseFloat(el('cropZoom').value);
+  clampOffset();
+  applyCropTransform();
+  updateCroppedPreview();
+});
+
+function startDrag(x, y){
+  dragging = true;
+  dragStart = { x, y };
+  dragOrigin = { x: cropState.offsetX, y: cropState.offsetY };
+  el('cropStage').style.cursor = 'grabbing';
+}
+function moveDrag(x, y){
+  if (!dragging) return;
+  cropState.offsetX = dragOrigin.x + (x - dragStart.x);
+  cropState.offsetY = dragOrigin.y + (y - dragStart.y);
+  clampOffset();
+  applyCropTransform();
+}
+function endDrag(){
+  if (!dragging) return;
+  dragging = false;
+  el('cropStage').style.cursor = 'grab';
+  updateCroppedPreview();
+}
+el('cropStage').addEventListener('mousedown', (e) => startDrag(e.clientX, e.clientY));
+window.addEventListener('mousemove', (e) => moveDrag(e.clientX, e.clientY));
+window.addEventListener('mouseup', endDrag);
+el('cropStage').addEventListener('touchstart', (e) => { const t = e.touches[0]; startDrag(t.clientX, t.clientY); }, { passive: true });
+el('cropStage').addEventListener('touchmove', (e) => { const t = e.touches[0]; moveDrag(t.clientX, t.clientY); }, { passive: true });
+el('cropStage').addEventListener('touchend', endDrag);
+
+function updateCroppedPreview(){
+  const canvas = document.createElement('canvas');
+  canvas.width = CROP_OUT_W;
+  canvas.height = CROP_OUT_H;
+  const ctx = canvas.getContext('2d');
+  const img = el('cropImg');
+  // Map the visible crop-stage window back onto the original image at full resolution
+  const sx = (0 - cropState.offsetX) / cropState.scale;
+  const sy = (0 - cropState.offsetY) / cropState.scale;
+  const sw = stageW / cropState.scale;
+  const sh = stageH / cropState.scale;
+  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, CROP_OUT_W, CROP_OUT_H);
+  canvas.toBlob((blob) => {
+    croppedBlob = blob;
+    el('moviePosterPreview').src = URL.createObjectURL(blob);
+    el('moviePosterPreview').style.display = 'block';
+  }, 'image/jpeg', 0.9);
+}
 
 function clearMovieForm(){
   ['movieTitle','movieGenre','movieLanguage','movieDuration','movieRatingCode','movieTrailer','movieSynopsis'].forEach(id => el(id).value = '');
   el('movieRatingCountry').value = 'PK';
   el('movieposterFile').value = '';
   el('moviePosterPreview').style.display = 'none';
+  el('cropWrap').style.display = 'none';
+  croppedBlob = null;
   el('movieFormError').textContent = '';
 }
 
@@ -382,11 +486,9 @@ el('saveMovieBtn').addEventListener('click', async () => {
   el('saveMovieBtn').disabled = true;
 
   let posterUrl = editingMovieId ? (allMovies.find(m => m.id === editingMovieId)?.poster_url || null) : null;
-  const file = el('movieposterFile').files[0];
-  if (file) {
-    const ext = file.name.split('.').pop();
-    const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error: upErr } = await supabase.storage.from('posters').upload(path, file);
+  if (croppedBlob) {
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
+    const { error: upErr } = await supabase.storage.from('posters').upload(path, croppedBlob, { contentType: 'image/jpeg' });
     if (upErr) { el('movieFormError').textContent = 'Poster upload failed: ' + upErr.message; el('saveMovieBtn').disabled = false; return; }
     const { data: pub } = supabase.storage.from('posters').getPublicUrl(path);
     posterUrl = pub.publicUrl;
