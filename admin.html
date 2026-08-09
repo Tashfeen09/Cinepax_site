@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#1b1035">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin — Cinepax</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Mukta:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #1b1035; --bg-raised: #241443; --bg-card: #2b1850;
+    --magenta: #e8467c; --magenta-bright: #f2608f;
+    --marigold: #f2a93c; --marigold-bright: #ffc266;
+    --teal: #1fa7a0; --teal-bright: #29c4bc;
+    --cream: #fdf3e0; --muted: #b3a2d6; --line: rgba(242,169,60,0.2);
+    --danger: #e04848;
+  }
+  *{ box-sizing: border-box; margin:0; padding:0; }
+  html, body{ max-width: 100%; overflow-x: hidden; }
+  body{ background: var(--bg); color: var(--cream); font-family: 'Mukta', sans-serif; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  a{ color: inherit; }
+  button, input, textarea, select{ font-family: inherit; }
+  .display{ font-family: 'Baloo 2', sans-serif; font-weight: 700; }
+  .mono{ font-family: 'IBM Plex Mono', monospace; }
+
+  #loginScreen{ min-height: 100vh; display:flex; align-items:center; justify-content:center; padding: 20px; }
+  .login-card{ background: var(--bg-card); border: 1px solid var(--line); border-radius: 16px; padding: 28px; width: 100%; max-width: 360px; }
+  .login-card h1{ font-size: 1.6rem; color: var(--cream); margin-bottom: 4px; }
+  .login-card p.sub{ color: var(--muted); font-size: 0.88rem; margin-bottom: 20px; }
+  .field{ margin-bottom: 14px; }
+  .field label{ display:block; font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--marigold-bright); margin-bottom: 6px; }
+  .field input, .field select, .field textarea{
+    width:100%; background: var(--bg-raised); border: 1px solid var(--line); border-radius: 8px;
+    padding: 11px 12px; color: var(--cream); font-size: 0.95rem;
+  }
+  .field textarea{ resize: vertical; min-height: 80px; }
+  .field input:focus, .field select:focus, .field textarea:focus{ outline:none; border-color: var(--marigold); }
+  .btn{ font-family: 'Baloo 2', sans-serif; font-weight: 700; border: none; border-radius: 9px; padding: 12px 20px; cursor: pointer; font-size: 0.95rem; }
+  .btn-primary{ background: var(--magenta); color: var(--cream); width: 100%; }
+  .btn-primary:hover{ background: var(--magenta-bright); }
+  .btn-secondary{ background: var(--bg-raised); color: var(--cream); border: 1px solid var(--line); }
+  .btn-danger{ background: var(--danger); color: var(--cream); }
+  .btn-small{ padding: 8px 14px; font-size: 0.85rem; }
+  .error-text{ color: var(--danger); font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
+
+  #adminScreen{ display:none; }
+  #adminScreen.active{ display:block; }
+  header{ position: sticky; top:0; z-index: 50; background: rgba(27,16,53,0.96); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); padding: 14px 16px; display:flex; justify-content: space-between; align-items:center; }
+  header .brand{ font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 1.3rem; }
+  header .userbar{ display:flex; align-items:center; gap: 10px; font-size: 0.8rem; color: var(--muted); }
+
+  .tabs{ display:flex; gap: 6px; padding: 14px 16px 0; overflow-x: auto; }
+  .tab-btn{ background: var(--bg-card); border: 1px solid var(--line); color: var(--muted); border-radius: 9px 9px 0 0; padding: 10px 16px; font-family: 'Baloo 2', sans-serif; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .tab-btn.active{ background: var(--bg-raised); color: var(--marigold-bright); border-bottom-color: var(--bg-raised); }
+
+  main{ padding: 18px 16px 60px; max-width: 900px; margin: 0 auto; }
+  .panel{ display:none; }
+  .panel.active{ display:block; }
+
+  .panel-head{ display:flex; justify-content: space-between; align-items:center; margin-bottom: 16px; gap: 10px; flex-wrap: wrap; }
+  .panel-head h2{ font-size: 1.3rem; }
+
+  .form-card{ background: var(--bg-card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin-bottom: 20px; display:none; }
+  .form-card.open{ display:block; }
+  .field-row{ display:grid; gap: 12px; }
+  @media(min-width:520px){ .field-row.two{ grid-template-columns: 1fr 1fr; } .field-row.three{ grid-template-columns: 1fr 1fr 1fr; } }
+
+  .poster-preview{ width: 90px; height: 130px; border-radius: 8px; object-fit: cover; background: var(--bg-raised); border: 1px solid var(--line); }
+
+  .movie-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(110px,1fr)); gap: 14px; }
+  .movie-card{ cursor:pointer; background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px; overflow:hidden; text-align:left; }
+  .movie-card .poster{ width:100%; aspect-ratio: 2/3; object-fit: cover; background: var(--bg-raised); display:flex; align-items:center; justify-content:center; color: var(--muted); font-size: 0.7rem; text-align:center; }
+  .movie-card .info{ padding: 8px 10px; }
+  .movie-card .info .title{ font-family: 'Baloo 2', sans-serif; font-weight: 600; font-size: 0.85rem; line-height: 1.2; }
+  .movie-card .info .meta{ color: var(--muted); font-size: 0.7rem; margin-top: 3px; }
+
+  .list-row{ background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 10px; display:flex; justify-content: space-between; align-items:center; gap: 10px; }
+  .list-row .rowtext .rt-title{ font-family: 'Baloo 2', sans-serif; font-weight: 600; }
+  .list-row .rowtext .rt-sub{ color: var(--muted); font-size: 0.82rem; margin-top: 2px; }
+  .list-row .rowbtns{ display:flex; gap: 6px; flex-shrink:0; }
+
+  #movieModal{ position: fixed; inset:0; background: rgba(10,5,20,0.75); z-index: 200; display:none; align-items:flex-end; justify-content:center; }
+  #movieModal.open{ display:flex; }
+  .modal-sheet{ background: var(--bg); border: 1px solid var(--line); border-radius: 18px 18px 0 0; width:100%; max-width: 560px; max-height: 88vh; overflow-y: auto; padding: 20px; }
+  .modal-sheet .modal-top{ display:flex; justify-content: space-between; align-items:flex-start; margin-bottom: 14px; }
+  .modal-sheet .modal-close{ background:none; border:none; color: var(--muted); font-size: 1.3rem; cursor:pointer; }
+  .modal-poster{ width: 120px; border-radius: 10px; margin-bottom: 14px; }
+  .modal-sheet h3{ font-size: 1.4rem; margin-bottom: 4px; }
+  .modal-sheet .meta-line{ color: var(--muted); font-size: 0.85rem; margin-bottom: 10px; }
+  .modal-sheet .synopsis{ font-size: 0.92rem; color: var(--cream); margin-bottom: 16px; }
+  .modal-actions{ display:flex; gap: 10px; margin-top: 10px; }
+
+  .empty-note{ color: var(--muted); font-size: 0.88rem; padding: 20px 0; text-align:center; }
+  .toast{ position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--teal); color: var(--cream); padding: 10px 20px; border-radius: 30px; font-size: 0.88rem; font-weight: 600; z-index: 300; display:none; }
+  .toast.show{ display:block; }
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-card">
+    <h1 class="display">Cinepax Admin</h1>
+    <p class="sub">Staff login only.</p>
+    <form id="loginForm">
+      <div class="field">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" required autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-primary" id="loginBtn">Log in</button>
+      <p class="error-text" id="loginError"></p>
+    </form>
+  </div>
+</div>
+
+<div id="adminScreen">
+  <header>
+    <span class="brand">CINEPAX ADMIN</span>
+    <div class="userbar">
+      <span id="userEmail"></span>
+      <button class="btn btn-secondary btn-small" id="logoutBtn">Log out</button>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="movies">Movies</button>
+    <button class="tab-btn" data-tab="cinemas">Cinemas</button>
+    <button class="tab-btn" data-tab="showtimes">Showtimes</button>
+  </div>
+
+  <main>
+    <section class="panel active" id="panel-movies">
+      <div class="panel-head">
+        <h2 class="display">Movies</h2>
+        <button class="btn btn-primary btn-small" id="toggleMovieForm">+ Add movie</button>
+      </div>
+
+      <div class="form-card" id="movieForm">
+        <div class="field">
+          <label>Poster image</label>
+          <input type="file" id="movieposterFile" accept="image/*">
+          <img id="moviePosterPreview" class="poster-preview" style="margin-top:8px; display:none;">
+        </div>
+        <div class="field-row two">
+          <div class="field"><label>Title</label><input type="text" id="movieTitle" required></div>
+          <div class="field"><label>Genre</label><input type="text" id="movieGenre" placeholder="e.g. Comedy"></div>
+        </div>
+        <div class="field-row three">
+          <div class="field"><label>Language</label><input type="text" id="movieLanguage" placeholder="e.g. Punjabi"></div>
+          <div class="field"><label>Duration (min)</label><input type="number" id="movieDuration" placeholder="154"></div>
+          <div class="field">
+            <label>Rating system</label>
+            <select id="movieRatingCountry">
+              <option value="US">US (MPA)</option>
+              <option value="UK">UK (BBFC)</option>
+              <option value="PK">Pakistan (local)</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row two">
+          <div class="field"><label>Rating code</label><input type="text" id="movieRatingCode" placeholder="e.g. PG-13, 15, U, A"></div>
+          <div class="field"><label>Trailer URL (optional)</label><input type="url" id="movieTrailer" placeholder="https://..."></div>
+        </div>
+        <div class="field"><label>Synopsis</label><textarea id="movieSynopsis"></textarea></div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-primary" id="saveMovieBtn">Save movie</button>
+          <button class="btn btn-secondary" id="cancelMovieBtn" type="button">Cancel</button>
+        </div>
+        <p class="error-text" id="movieFormError"></p>
+      </div>
+
+      <div class="movie-grid" id="movieGrid"></div>
+      <p class="empty-note" id="movieEmptyNote" style="display:none;">No movies yet — add your first one above.</p>
+    </section>
+
+    <section class="panel" id="panel-cinemas">
+      <div class="panel-head">
+        <h2 class="display">Cinemas</h2>
+        <button class="btn btn-primary btn-small" id="toggleCinemaForm">+ Add cinema</button>
+      </div>
+      <div class="form-card" id="cinemaForm">
+        <div class="field-row two">
+          <div class="field"><label>Name</label><input type="text" id="cinemaName" required placeholder="e.g. Jinnah Park"></div>
+          <div class="field"><label>City</label><input type="text" id="cinemaCity" required></div>
+        </div>
+        <div class="field-row two">
+          <div class="field"><label>Address</label><input type="text" id="cinemaAddress"></div>
+          <div class="field"><label>Phone</label><input type="text" id="cinemaPhone"></div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-primary" id="saveCinemaBtn">Save cinema</button>
+          <button class="btn btn-secondary" id="cancelCinemaBtn" type="button">Cancel</button>
+        </div>
+        <p class="error-text" id="cinemaFormError"></p>
+      </div>
+      <div id="cinemaList"></div>
+      <p class="empty-note" id="cinemaEmptyNote" style="display:none;">No cinemas yet.</p>
+    </section>
+
+    <section class="panel" id="panel-showtimes">
+      <div class="panel-head">
+        <h2 class="display">Showtimes</h2>
+        <button class="btn btn-primary btn-small" id="toggleShowtimeForm">+ Add showtime</button>
+      </div>
+      <div class="form-card" id="showtimeForm">
+        <div class="field-row two">
+          <div class="field"><label>Movie</label><select id="showtimeMovie" required></select></div>
+          <div class="field"><label>Cinema</label><select id="showtimeCinema" required></select></div>
+        </div>
+        <div class="field-row three">
+          <div class="field"><label>Screen</label><input type="text" id="showtimeScreen" placeholder="Screen 2"></div>
+          <div class="field"><label>Format</label>
+            <select id="showtimeFormat"><option>2D</option><option>3D</option></select>
+          </div>
+          <div class="field"><label>Date &amp; time</label><input type="datetime-local" id="showtimeDatetime" required></div>
+        </div>
+        <div class="field-row two">
+          <div class="field"><label>Silver price (Rs)</label><input type="number" id="showtimeSilver" value="650"></div>
+          <div class="field"><label>Gold price (Rs)</label><input type="number" id="showtimeGold" value="900"></div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-primary" id="saveShowtimeBtn">Save showtime</button>
+          <button class="btn btn-secondary" id="cancelShowtimeBtn" type="button">Cancel</button>
+        </div>
+        <p class="error-text" id="showtimeFormError"></p>
+      </div>
+      <div id="showtimeList"></div>
+      <p class="empty-note" id="showtimeEmptyNote" style="display:none;">No showtimes yet.</p>
+    </section>
+  </main>
+</div>
+
+<div id="movieModal">
+  <div class="modal-sheet">
+    <div class="modal-top">
+      <div></div>
+      <button class="modal-close" id="closeModalBtn">✕</button>
+    </div>
+    <img id="modalPoster" class="modal-poster" style="display:none;">
+    <h3 id="modalTitle"></h3>
+    <p class="meta-line" id="modalMeta"></p>
+    <p class="synopsis" id="modalSynopsis"></p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="modalEditBtn">Edit</button>
+      <button class="btn btn-danger" id="modalDeleteBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const SUPABASE_URL = 'https://jonmnpnxtqavsrrjglet.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impvbm1ucG54dHFhdnNycmpnbGV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyMDc3MzcsImV4cCI6MjEwMTc4MzczN30.z36lYdzrTEbFyisYmj1LNqAIqHH28pKNhuI1WOLpaJQ';
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const el = (id) => document.getElementById(id);
+let currentUser = null;
+let editingMovieId = null;
+let allMovies = [];
+let allCinemas = [];
+
+function showToast(msg){
+  const t = el('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+el('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  el('loginError').textContent = '';
+  el('loginBtn').disabled = true;
+  const email = el('loginEmail').value.trim();
+  const password = el('loginPassword').value;
+
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  el('loginBtn').disabled = false;
+  if (error) { el('loginError').textContent = error.message; return; }
+
+  const { data: adminRow } = await supabase.from('admins').select('id').eq('id', data.user.id).maybeSingle();
+  if (!adminRow) {
+    el('loginError').textContent = "This account isn't authorized as an admin.";
+    await supabase.auth.signOut();
+    return;
+  }
+  currentUser = data.user;
+  enterAdmin();
+});
+
+el('logoutBtn').addEventListener('click', async () => {
+  await supabase.auth.signOut();
+  location.reload();
+});
+
+async function enterAdmin(){
+  el('loginScreen').style.display = 'none';
+  el('adminScreen').classList.add('active');
+  el('userEmail').textContent = currentUser.email;
+  await Promise.all([loadMovies(), loadCinemas(), loadShowtimes()]);
+}
+
+(async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    const { data: adminRow } = await supabase.from('admins').select('id').eq('id', session.user.id).maybeSingle();
+    if (adminRow) { currentUser = session.user; enterAdmin(); }
+  }
+})();
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    el('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+el('toggleMovieForm').addEventListener('click', () => {
+  editingMovieId = null;
+  clearMovieForm();
+  el('movieForm').classList.toggle('open');
+});
+el('cancelMovieBtn').addEventListener('click', () => el('movieForm').classList.remove('open'));
+
+el('movieposterFile').addEventListener('change', () => {
+  const file = el('movieposterFile').files[0];
+  if (!file) return;
+  const url = URL.createObjectURL(file);
+  el('moviePosterPreview').src = url;
+  el('moviePosterPreview').style.display = 'block';
+});
+
+function clearMovieForm(){
+  ['movieTitle','movieGenre','movieLanguage','movieDuration','movieRatingCode','movieTrailer','movieSynopsis'].forEach(id => el(id).value = '');
+  el('movieRatingCountry').value = 'PK';
+  el('movieposterFile').value = '';
+  el('moviePosterPreview').style.display = 'none';
+  el('movieFormError').textContent = '';
+}
+
+async function loadMovies(){
+  const { data, error } = await supabase.from('movies').select('*').order('created_at', { ascending: false });
+  if (error) { showToast('Error loading movies'); return; }
+  allMovies = data || [];
+  renderMovieGrid();
+  populateMovieSelect();
+}
+
+function renderMovieGrid(){
+  const grid = el('movieGrid');
+  grid.innerHTML = '';
+  el('movieEmptyNote').style.display = allMovies.length ? 'none' : 'block';
+  allMovies.forEach(m => {
+    const card = document.createElement('button');
+    card.className = 'movie-card';
+    card.innerHTML = `
+      ${m.poster_url ? `<img class="poster" src="${m.poster_url}" alt="">` : `<div class="poster">No poster</div>`}
+      <div class="info">
+        <div class="title">${escapeHtml(m.title)}</div>
+        <div class="meta">${escapeHtml(m.rating_code || '')}</div>
+      </div>`;
+    card.addEventListener('click', () => openMovieModal(m));
+    grid.appendChild(card);
+  });
+}
+
+el('saveMovieBtn').addEventListener('click', async () => {
+  el('movieFormError').textContent = '';
+  const title = el('movieTitle').value.trim();
+  if (!title) { el('movieFormError').textContent = 'Title is required.'; return; }
+  el('saveMovieBtn').disabled = true;
+
+  let posterUrl = editingMovieId ? (allMovies.find(m => m.id === editingMovieId)?.poster_url || null) : null;
+  const file = el('movieposterFile').files[0];
+  if (file) {
+    const ext = file.name.split('.').pop();
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error: upErr } = await supabase.storage.from('posters').upload(path, file);
+    if (upErr) { el('movieFormError').textContent = 'Poster upload failed: ' + upErr.message; el('saveMovieBtn').disabled = false; return; }
+    const { data: pub } = supabase.storage.from('posters').getPublicUrl(path);
+    posterUrl = pub.publicUrl;
+  }
+
+  const payload = {
+    title,
+    genre: el('movieGenre').value.trim() || null,
+    language: el('movieLanguage').value.trim() || null,
+    duration_minutes: el('movieDuration').value ? parseInt(el('movieDuration').value) : null,
+    rating_country: el('movieRatingCountry').value,
+    rating_code: el('movieRatingCode').value.trim() || null,
+    trailer_url: el('movieTrailer').value.trim() || null,
+    synopsis: el('movieSynopsis').value.trim() || null,
+    poster_url: posterUrl
+  };
+
+  let error;
+  if (editingMovieId) {
+    ({ error } = await supabase.from('movies').update(payload).eq('id', editingMovieId));
+  } else {
+    ({ error } = await supabase.from('movies').insert(payload));
+  }
+  el('saveMovieBtn').disabled = false;
+  if (error) { el('movieFormError').textContent = error.message; return; }
+
+  showToast(editingMovieId ? 'Movie updated' : 'Movie added');
+  el('movieForm').classList.remove('open');
+  editingMovieId = null;
+  clearMovieForm();
+  loadMovies();
+});
+
+function openMovieModal(m){
+  el('modalTitle').textContent = m.title;
+  const bits = [m.genre, m.language, m.duration_minutes ? m.duration_minutes + ' min' : null, m.rating_code ? `${m.rating_country} · ${m.rating_code}` : null].filter(Boolean);
+  el('modalMeta').textContent = bits.join(' · ');
+  el('modalSynopsis').textContent = m.synopsis || 'No synopsis yet.';
+  if (m.poster_url) { el('modalPoster').src = m.poster_url; el('modalPoster').style.display = 'block'; }
+  else { el('modalPoster').style.display = 'none'; }
+
+  el('modalEditBtn').onclick = () => {
+    editingMovieId = m.id;
+    el('movieTitle').value = m.title || '';
+    el('movieGenre').value = m.genre || '';
+    el('movieLanguage').value = m.language || '';
+    el('movieDuration').value = m.duration_minutes || '';
+    el('movieRatingCountry').value = m.rating_country || 'PK';
+    el('movieRatingCode').value = m.rating_code || '';
+    el('movieTrailer').value = m.trailer_url || '';
+    el('movieSynopsis').value = m.synopsis || '';
+    if (m.poster_url) { el('moviePosterPreview').src = m.poster_url; el('moviePosterPreview').style.display = 'block'; }
+    el('movieModal').classList.remove('open');
+    el('movieForm').classList.add('open');
+    el('movieForm').scrollIntoView({ behavior: 'smooth' });
+  };
+  el('modalDeleteBtn').onclick = async () => {
+    if (!confirm(`Delete "${m.title}"? This can't be undone.`)) return;
+    const { error } = await supabase.from('movies').delete().eq('id', m.id);
+    if (error) { showToast('Delete failed'); return; }
+    showToast('Movie deleted');
+    el('movieModal').classList.remove('open');
+    loadMovies();
+  };
+
+  el('movieModal').classList.add('open');
+}
+el('closeModalBtn').addEventListener('click', () => el('movieModal').classList.remove('open'));
+el('movieModal').addEventListener('click', (e) => { if (e.target.id === 'movieModal') el('movieModal').classList.remove('open'); });
+
+el('toggleCinemaForm').addEventListener('click', () => el('cinemaForm').classList.toggle('open'));
+el('cancelCinemaBtn').addEventListener('click', () => el('cinemaForm').classList.remove('open'));
+
+async function loadCinemas(){
+  const { data, error } = await supabase.from('cinemas').select('*').order('name');
+  if (error) { showToast('Error loading cinemas'); return; }
+  allCinemas = data || [];
+  const listEl = el('cinemaList');
+  listEl.innerHTML = '';
+  el('cinemaEmptyNote').style.display = allCinemas.length ? 'none' : 'block';
+  allCinemas.forEach(c => {
+    const row = document.createElement('div');
+    row.className = 'list-row';
+    row.innerHTML = `
+      <div class="rowtext">
+        <div class="rt-title">${escapeHtml(c.name)} — ${escapeHtml(c.city)}</div>
+        <div class="rt-sub">${escapeHtml(c.address || '')} ${c.phone ? '· ' + escapeHtml(c.phone) : ''}</div>
+      </div>
+      <div class="rowbtns"><button class="btn btn-danger btn-small" data-id="${c.id}">Delete</button></div>`;
+    row.querySelector('button').addEventListener('click', async () => {
+      if (!confirm(`Delete ${c.name}?`)) return;
+      await supabase.from('cinemas').delete().eq('id', c.id);
+      loadCinemas(); loadShowtimes();
+    });
+    listEl.appendChild(row);
+  });
+  populateCinemaSelect();
+}
+
+el('saveCinemaBtn').addEventListener('click', async () => {
+  el('cinemaFormError').textContent = '';
+  const name = el('cinemaName').value.trim();
+  const city = el('cinemaCity').value.trim();
+  if (!name || !city) { el('cinemaFormError').textContent = 'Name and city are required.'; return; }
+  const { error } = await supabase.from('cinemas').insert({
+    name, city,
+    address: el('cinemaAddress').value.trim() || null,
+    phone: el('cinemaPhone').value.trim() || null
+  });
+  if (error) { el('cinemaFormError').textContent = error.message; return; }
+  showToast('Cinema added');
+  ['cinemaName','cinemaCity','cinemaAddress','cinemaPhone'].forEach(id => el(id).value = '');
+  el('cinemaForm').classList.remove('open');
+  loadCinemas();
+});
+
+el('toggleShowtimeForm').addEventListener('click', () => el('showtimeForm').classList.toggle('open'));
+el('cancelShowtimeBtn').addEventListener('click', () => el('showtimeForm').classList.remove('open'));
+
+function populateMovieSelect(){
+  el('showtimeMovie').innerHTML = allMovies.map(m => `<option value="${m.id}">${escapeHtml(m.title)}</option>`).join('');
+}
+function populateCinemaSelect(){
+  el('showtimeCinema').innerHTML = allCinemas.map(c => `<option value="${c.id}">${escapeHtml(c.name)} — ${escapeHtml(c.city)}</option>`).join('');
+}
+
+async function loadShowtimes(){
+  const { data, error } = await supabase
+    .from('showtimes')
+    .select('*, movies(title), cinemas(name, city)')
+    .order('show_time');
+  if (error) { showToast('Error loading showtimes'); return; }
+  const listEl = el('showtimeList');
+  listEl.innerHTML = '';
+  el('showtimeEmptyNote').style.display = (data && data.length) ? 'none' : 'block';
+  (data || []).forEach(s => {
+    const when = new Date(s.show_time).toLocaleString('en-GB', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+    const row = document.createElement('div');
+    row.className = 'list-row';
+    row.innerHTML = `
+      <div class="rowtext">
+        <div class="rt-title">${escapeHtml(s.movies?.title || 'Unknown movie')}</div>
+        <div class="rt-sub">${escapeHtml(s.cinemas?.name || '')} · ${escapeHtml(s.screen || '')} · ${s.format} · ${when}</div>
+      </div>
+      <div class="rowbtns"><button class="btn btn-danger btn-small" data-id="${s.id}">Delete</button></div>`;
+    row.querySelector('button').addEventListener('click', async () => {
+      if (!confirm('Delete this showtime?')) return;
+      await supabase.from('showtimes').delete().eq('id', s.id);
+      loadShowtimes();
+    });
+    listEl.appendChild(row);
+  });
+}
+
+el('saveShowtimeBtn').addEventListener('click', async () => {
+  el('showtimeFormError').textContent = '';
+  const movie_id = el('showtimeMovie').value;
+  const cinema_id = el('showtimeCinema').value;
+  const dt = el('showtimeDatetime').value;
+  if (!movie_id || !cinema_id || !dt) { el('showtimeFormError').textContent = 'Movie, cinema, and date/time are required.'; return; }
+  const { error } = await supabase.from('showtimes').insert({
+    movie_id, cinema_id,
+    screen: el('showtimeScreen').value.trim() || null,
+    format: el('showtimeFormat').value,
+    show_time: new Date(dt).toISOString(),
+    price_silver: parseFloat(el('showtimeSilver').value) || 650,
+    price_gold: parseFloat(el('showtimeGold').value) || 900
+  });
+  if (error) { el('showtimeFormError').textContent = error.message; return; }
+  showToast('Showtime added');
+  el('showtimeForm').classList.remove('open');
+  loadShowtimes();
+});
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str ?? '';
+  return d.innerHTML;
+}
+</script>
+</body>
+</html>
