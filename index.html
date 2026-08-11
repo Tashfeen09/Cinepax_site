@@ -12,18 +12,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Libre+Franklin:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
-  /* Homepage-only override: the full Cinepax lockup needs real vertical
-     room to read as bold rather than cramped, so the header grows to
-     fit it instead of the logo shrinking to fit the header. */
-  header .nav-bar{ padding: 20px 20px; }
-  .brand-logo{ display:flex; align-items:center; }
-  .brand-logo-img{ height: 58px; width: auto; display:block; }
-  @media (min-width: 480px){
-    .brand-logo-img{ height: 72px; }
+  /* Homepage-only: the logo is a wide lockup, not an icon, so it gets its
+     own full-width banner under the sticky nav instead of being squeezed
+     into the corner next to the menu button. */
+  .logo-banner{
+    background: var(--bg-raised);
+    border-bottom: 1px solid var(--line);
+    padding: 28px 20px 32px;
+    display: flex;
+    justify-content: center;
+  }
+  .logo-banner-img{
+    width: 100%;
+    max-width: 620px;
+    height: auto;
+    display: block;
   }
   @media (min-width: 720px){
-    header .nav-bar{ padding: 26px 20px; }
-    .brand-logo-img{ height: 88px; }
+    .logo-banner{ padding: 40px 20px 44px; }
+    .logo-banner-img{ max-width: 760px; }
   }
 </style>
 </head>
@@ -33,10 +40,15 @@
 
 <header>
   <div class="nav-bar">
-    <a href="#top" class="brand brand-logo" aria-label="Cinepax home"><img src="cinepax-logo.svg" alt="Cinepax" class="brand-logo-img"></a>
+    <a href="#top" class="brand" aria-label="Cinepax home"><span class="name">CINEPAX</span></a>
     <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="navOverlay" aria-label="Open menu"><span></span></button>
   </div>
 </header>
+
+<div class="logo-banner">
+  <img src="cinepax-logo.svg" alt="Cinepax" class="logo-banner-img">
+</div>
+
 
 <nav class="nav-overlay" id="navOverlay">
   <div class="nav-overlay-top">
