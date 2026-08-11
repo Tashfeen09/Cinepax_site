@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#1b1035">
+<title>Film — Cinepax</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Mukta:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #1b1035; --bg-raised: #241443; --bg-card: #2b1850;
+    --magenta: #e8467c; --magenta-bright: #f2608f;
+    --marigold: #f2a93c; --marigold-bright: #ffc266;
+    --teal: #1fa7a0; --teal-bright: #29c4bc;
+    --cream: #fdf3e0; --muted: #b3a2d6; --line: rgba(242,169,60,0.2);
+  }
+  *{ box-sizing: border-box; margin:0; padding:0; }
+  html, body{ max-width: 100%; overflow-x: hidden; }
+  body{ background: var(--bg); color: var(--cream); font-family: 'Mukta', sans-serif; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  a{ color: inherit; text-decoration: none; }
+  img, svg{ display:block; max-width:100%; }
+  button{ font-family: inherit; }
+  .display{ font-family: 'Baloo 2', sans-serif; font-weight: 700; }
+  .eyebrow{ font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.7rem; color: var(--marigold-bright); }
+
+  header{ position: sticky; top: 0; z-index: 100; background: rgba(27,16,53,0.94); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  .nav-bar{ display:flex; align-items:center; justify-content: space-between; padding: 14px 20px; max-width: 1200px; margin: 0 auto; }
+  .brand .name{ font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 1.5rem; }
+  .back-link{ color: var(--muted); font-size: 0.9rem; display:flex; align-items:center; gap:6px; }
+
+  main{ max-width: 900px; margin: 0 auto; padding: 24px 20px 60px; }
+  .hero-row{ display:flex; gap: 18px; margin-bottom: 22px; }
+  .poster-box{ width: 130px; flex-shrink:0; border-radius: 12px; overflow:hidden; aspect-ratio:2/3; background: var(--bg-card); border: 1px solid var(--line); }
+  .poster-box img{ width:100%; height:100%; object-fit:cover; }
+  .poster-box .no-poster{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:0.75rem; text-align:center; padding:8px; }
+  .hero-info h1{ font-size: clamp(1.6rem, 7vw, 2.2rem); margin-bottom: 6px; }
+  .hero-info .meta{ color: var(--muted); font-size: 0.88rem; }
+  .rating-pill{ display:inline-block; background: var(--bg-card); border: 1px solid var(--line); border-radius: 6px; padding: 3px 9px; font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--marigold-bright); margin-top: 8px; }
+
+  .synopsis{ color: var(--cream); font-size: 0.96rem; margin: 20px 0; }
+  .trailer-link{ display:inline-flex; align-items:center; gap:8px; background: var(--bg-card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px; font-weight:600; color: var(--teal-bright); margin-bottom: 24px; }
+  .trailer-link svg{ width:18px; height:18px; }
+  .trailer-link svg path{ fill: var(--teal-bright); }
+
+  .section-title{ font-size: 1.2rem; margin: 28px 0 14px; }
+  .cinema-group{ margin-bottom: 22px; }
+  .cinema-group h3{ font-family: 'Baloo 2', sans-serif; font-size: 1.05rem; color: var(--marigold-bright); margin-bottom: 10px; }
+  .showtime-chips{ display:flex; flex-wrap:wrap; gap: 8px; }
+  .showtime-chip{ background: var(--bg-card); border: 1px solid var(--line); border-radius: 9px; padding: 9px 14px; font-size: 0.85rem; cursor:pointer; text-align:left; }
+  .showtime-chip:hover{ border-color: var(--marigold); }
+  .showtime-chip .st-time{ font-family: 'IBM Plex Mono', monospace; color: var(--cream); font-weight:600; }
+  .showtime-chip .st-sub{ color: var(--muted); font-size: 0.72rem; margin-top:2px; }
+
+  .empty-note, .loading-note{ color: var(--muted); font-size: 0.9rem; padding: 20px 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav-bar">
+    <a href="index.html" class="brand"><span class="name">CINEPAX</span></a>
+    <a href="movies.html" class="back-link">← All films</a>
+  </div>
+</header>
+
+<main>
+  <p class="loading-note" id="loadingNote">Loading film...</p>
+  <div id="content" style="display:none;">
+    <div class="hero-row">
+      <div class="poster-box" id="posterBox"></div>
+      <div class="hero-info">
+        <h1 class="display" id="movieTitle"></h1>
+        <p class="meta" id="movieMeta"></p>
+        <span class="rating-pill" id="ratingPill" style="display:none;"></span>
+      </div>
+    </div>
+    <p class="synopsis" id="movieSynopsis"></p>
+    <a class="trailer-link" id="trailerLink" style="display:none;" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+      Watch trailer
+    </a>
+
+    <h2 class="section-title display">Showtimes</h2>
+    <div id="showtimesWrap"></div>
+    <p class="empty-note" id="noShowtimesNote" style="display:none;">No showtimes scheduled for this film yet.</p>
+  </div>
+  <p class="empty-note" id="notFoundNote" style="display:none;">Film not found.</p>
+</main>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const SUPABASE_URL = 'https://jonmnpnxtqavsrrjglet.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impvbm1ucG54dHFhdnNycmpnbGV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyMDc3MzcsImV4cCI6MjEwMTc4MzczN30.z36lYdzrTEbFyisYmj1LNqAIqHH28pKNhuI1WOLpaJQ';
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str ?? '';
+  return d.innerHTML;
+}
+
+const params = new URLSearchParams(location.search);
+const movieId = params.get('id');
+
+async function loadMovie(){
+  if (!movieId) { showNotFound(); return; }
+  const { data: movie, error } = await supabase.from('movies').select('*').eq('id', movieId).maybeSingle();
+  document.getElementById('loadingNote').style.display = 'none';
+  if (error || !movie) { showNotFound(); return; }
+
+  document.title = movie.title + ' — Cinepax';
+  document.getElementById('movieTitle').textContent = movie.title;
+  const bits = [movie.genre, movie.language, movie.duration_minutes ? movie.duration_minutes + ' min' : null].filter(Boolean);
+  document.getElementById('movieMeta').textContent = bits.join(' · ');
+  document.getElementById('movieSynopsis').textContent = movie.synopsis || '';
+
+  const posterBox = document.getElementById('posterBox');
+  posterBox.innerHTML = movie.poster_url
+    ? `<img src="${movie.poster_url}" alt="${escapeHtml(movie.title)} poster">`
+    : `<div class="no-poster">${escapeHtml(movie.title)}</div>`;
+
+  if (movie.rating_code) {
+    const pill = document.getElementById('ratingPill');
+    pill.textContent = `${movie.rating_country || ''} ${movie.rating_code}`.trim();
+    pill.style.display = 'inline-block';
+  }
+  if (movie.trailer_url) {
+    const link = document.getElementById('trailerLink');
+    link.href = movie.trailer_url;
+    link.style.display = 'inline-flex';
+  }
+
+  document.getElementById('content').style.display = 'block';
+  loadShowtimes();
+}
+
+async function loadShowtimes(){
+  const { data, error } = await supabase
+    .from('showtimes')
+    .select('*, cinemas(id, name, city)')
+    .eq('movie_id', movieId)
+    .gte('show_time', new Date().toISOString())
+    .order('show_time');
+
+  const wrap = document.getElementById('showtimesWrap');
+  if (error || !data || data.length === 0) {
+    document.getElementById('noShowtimesNote').style.display = 'block';
+    return;
+  }
+
+  const byCinema = {};
+  data.forEach(s => {
+    const key = s.cinemas?.id || 'unknown';
+    if (!byCinema[key]) byCinema[key] = { name: s.cinemas?.name || 'Unknown cinema', city: s.cinemas?.city || '', shows: [] };
+    byCinema[key].shows.push(s);
+  });
+
+  Object.values(byCinema).forEach(group => {
+    const groupEl = document.createElement('div');
+    groupEl.className = 'cinema-group';
+    const chips = group.shows.map(s => {
+      const when = new Date(s.show_time).toLocaleString('en-GB', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+      return `<button class="showtime-chip">
+        <div class="st-time">${when}</div>
+        <div class="st-sub">${escapeHtml(s.screen || '')} · ${escapeHtml(s.format)} · Rs ${s.price_silver}/${s.price_gold}</div>
+      </button>`;
+    }).join('');
+    groupEl.innerHTML = `<h3>${escapeHtml(group.name)} — ${escapeHtml(group.city)}</h3><div class="showtime-chips">${chips}</div>`;
+    wrap.appendChild(groupEl);
+  });
+}
+
+function showNotFound(){
+  document.getElementById('notFoundNote').style.display = 'block';
+}
+
+loadMovie();
+</script>
+</body>
+</html>

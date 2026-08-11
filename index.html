@@ -328,26 +328,15 @@
       <div class="hero-inner">
         <label class="location-picker" for="cinemaSelect">
           <svg viewBox="0 0 24 24"><path d="M12 2C7.6 2 4 5.6 4 10c0 5.2 6.6 11.1 7.1 11.6.5.4 1.2.4 1.7 0C13.4 21.1 20 15.2 20 10c0-4.4-3.6-8-8-8zm0 10.5c-1.4 0-2.5-1.1-2.5-2.5S10.6 7.5 12 7.5s2.5 1.1 2.5 2.5-1.1 2.5-2.5 2.5z"></path></svg>
-          <select id="cinemaSelect">
-            <option value="amanah-mall" data-city="Lahore">Cinepax Amanah Mall — Lahore</option>
-            <option value="boulevard-mall" data-city="Hyderabad">Cinepax Boulevard Mall — Hyderabad</option>
-            <option value="hotelone" data-city="Faisalabad">Cinepax HotelOne — Faisalabad</option>
-            <option value="jinnah-park" data-city="Rawalpindi" selected>Cinepax Jinnah Park — Rawalpindi</option>
-            <option value="kings-mall" data-city="Gujranwala">Cinepax Kings Mall — Gujranwala</option>
-            <option value="mall-of-sialkot" data-city="Sialkot">Cinepax Mall of Sialkot — Sialkot</option>
-            <option value="nayyar-mall" data-city="Gujrat">Cinepax Nayyar Mall — Gujrat</option>
-            <option value="ocean-mall" data-city="Karachi">Cinepax Ocean Mall — Karachi</option>
-            <option value="packages-mall" data-city="Lahore">Cinepax Packages Mall — Lahore</option>
-            <option value="world-trade-center" data-city="Islamabad">Cinepax World Trade Center — Islamabad</option>
-          </select>
+          <select id="cinemaSelect"><option value="">Loading cinemas...</option></select>
         </label>
-        <p class="eyebrow">Now showing &middot; Cinepax Jinnah Park</p>
-        <h1 class="display">Carry On<br><span class="accent">Jatta 4</span></h1>
-        <p class="sub">Punjabi &middot; Comedy. Playing on our biggest screen at full scale — the way it's meant to be seen.</p>
-        <p class="hero-meta"><span>2D</span><span>&middot;</span><span>2h 34m</span><span>&middot;</span><span>Screen 2</span></p>
+        <p class="eyebrow" id="heroEyebrow">Now showing</p>
+        <h1 class="display" id="heroTitle">Loading...</h1>
+        <p class="sub" id="heroSub"></p>
+        <p class="hero-meta" id="heroMeta"></p>
         <div class="hero-ctas">
-          <a href="#seats" class="btn btn-primary">Book this showing</a>
-          <a href="#showing" class="btn btn-secondary">See all films</a>
+          <a href="#seats" class="btn btn-primary" id="heroBookBtn">Book this showing</a>
+          <a href="movies.html" class="btn btn-secondary">See all films</a>
         </div>
       </div>
     </div>
@@ -359,49 +348,8 @@
       <h2 class="display">Now Showing</h2>
       <p>Tap a showtime to load it into the seat map below.</p>
     </div>
-    <div class="film-row">
-
-      <article class="stub">
-        <div class="stub-poster"><span class="stub-badge">2D &middot; Punjabi</span><div class="reel"></div></div>
-        <div class="stub-body">
-          <h3>Carry On Jatta 4</h3>
-          <p class="meta">Cinepax Jinnah Park &middot; Screen 2</p>
-          <div class="stub-perf-h"></div>
-          <div class="times"><button type="button" class="active">10:30 PM</button></div>
-        </div>
-      </article>
-
-      <article class="stub">
-        <div class="stub-poster"><span class="stub-badge">2D &middot; English</span><div class="reel"></div></div>
-        <div class="stub-body">
-          <h3>Moana</h3>
-          <p class="meta">Cinepax Jinnah Park &middot; Screen 1</p>
-          <div class="stub-perf-h"></div>
-          <div class="times"><button type="button">12:15 PM</button></div>
-        </div>
-      </article>
-
-      <article class="stub">
-        <div class="stub-poster"><span class="stub-badge">2D &middot; English</span><div class="reel"></div></div>
-        <div class="stub-body">
-          <h3>Spider-Man: Brand New Day</h3>
-          <p class="meta">Cinepax Jinnah Park &middot; Screen 3</p>
-          <div class="stub-perf-h"></div>
-          <div class="times"><button type="button">11:45 PM</button></div>
-        </div>
-      </article>
-
-      <article class="stub">
-        <div class="stub-poster"><span class="stub-badge">2D &middot; Urdu</span><div class="reel"></div></div>
-        <div class="stub-body">
-          <h3>Spider-Man: Brand New Day</h3>
-          <p class="meta">Cinepax Jinnah Park &middot; Screen 4</p>
-          <div class="stub-perf-h"></div>
-          <div class="times"><button type="button">9:15 PM</button></div>
-        </div>
-      </article>
-
-    </div>
+    <div class="film-row" id="filmRow"></div>
+    <p class="empty-note" id="showingEmptyNote" style="display:none; color:var(--muted); padding:20px 0;">No showtimes scheduled for this cinema yet — check back soon.</p>
   </section>
 
   <section id="seats">
@@ -546,23 +494,6 @@
   overlay.addEventListener('keydown', e => { if(e.key === 'Escape') closeNav(); });
   overlay.querySelectorAll('a').forEach(a => a.addEventListener('click', closeNav));
 
-  const cinemaSelect = document.getElementById('cinemaSelect');
-  const heroEyebrow = document.querySelector('.hero .eyebrow');
-  const savedCinema = localStorage.getItem('cinepaxCinema');
-  if (savedCinema && cinemaSelect.querySelector(`option[value="${savedCinema}"]`)) {
-    cinemaSelect.value = savedCinema;
-  }
-  function updateCinemaLabel(){
-    const opt = cinemaSelect.options[cinemaSelect.selectedIndex];
-    heroEyebrow.textContent = 'Now showing \u00b7 ' + opt.textContent;
-  }
-  updateCinemaLabel();
-  cinemaSelect.addEventListener('change', () => {
-    localStorage.setItem('cinepaxCinema', cinemaSelect.value);
-    updateCinemaLabel();
-    // TODO: once backend is live, refetch now-showing films/showtimes for the selected cinema here
-  });
-
   const PRICE = { silver: 650, gold: 900 };
   const seatTotal = document.getElementById('seatTotal');
   const seatGrid = document.getElementById('seatGrid');
@@ -578,19 +509,6 @@
 
   seatGrid.querySelectorAll('.seat:not(.taken)').forEach(seat => {
     seat.addEventListener('click', () => { seat.classList.toggle('selected'); recalc(); });
-  });
-
-  document.querySelectorAll('.times button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.times button').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const stub = btn.closest('.stub');
-      const title = stub.querySelector('h3').textContent;
-      const meta = stub.querySelector('.meta').textContent;
-      document.querySelector('.seatmap-header h3').textContent = title;
-      document.querySelector('.seatmap-header .meta').textContent = 'Sat, 08 Aug \u00b7 ' + btn.textContent + ' \u00b7 ' + meta;
-      document.getElementById('seats').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
   });
 </script>
 
@@ -728,6 +646,146 @@
 })();
 </script>
 <!-- ===== End Cinepax Chat Widget ===== -->
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const SUPABASE_URL = 'https://jonmnpnxtqavsrrjglet.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impvbm1ucG54dHFhdnNycmpnbGV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyMDc3MzcsImV4cCI6MjEwMTc4MzczN30.z36lYdzrTEbFyisYmj1LNqAIqHH28pKNhuI1WOLpaJQ';
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const el = (id) => document.getElementById(id);
+let cinemas = [];
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str ?? '';
+  return d.innerHTML;
+}
+
+async function loadCinemas(){
+  const { data, error } = await supabase.from('cinemas').select('*').order('name');
+  if (error || !data || data.length === 0) {
+    el('heroTitle').textContent = 'No cinemas set up yet';
+    el('heroSub').textContent = 'Add cinemas and movies from the admin dashboard to see them here.';
+    el('cinemaSelect').innerHTML = '<option value="">No cinemas available</option>';
+    return;
+  }
+  cinemas = data;
+  const saved = localStorage.getItem('cinepaxCinemaId');
+  const defaultId = (saved && cinemas.some(c => c.id === saved)) ? saved : cinemas[0].id;
+
+  el('cinemaSelect').innerHTML = cinemas.map(c =>
+    `<option value="${c.id}">${escapeHtml(c.name)} — ${escapeHtml(c.city)}</option>`
+  ).join('');
+  el('cinemaSelect').value = defaultId;
+
+  el('cinemaSelect').addEventListener('change', () => {
+    localStorage.setItem('cinepaxCinemaId', el('cinemaSelect').value);
+    loadShowingsForCinema(el('cinemaSelect').value);
+  });
+
+  loadShowingsForCinema(defaultId);
+}
+
+async function loadShowingsForCinema(cinemaId){
+  const cinema = cinemas.find(c => c.id === cinemaId);
+  const { data, error } = await supabase
+    .from('showtimes')
+    .select('*, movies(*)')
+    .eq('cinema_id', cinemaId)
+    .gte('show_time', new Date().toISOString())
+    .order('show_time');
+
+  const filmRow = el('filmRow');
+  filmRow.innerHTML = '';
+
+  if (error || !data || data.length === 0) {
+    el('showingEmptyNote').style.display = 'block';
+    el('heroEyebrow').textContent = 'Now showing \u00b7 ' + (cinema ? cinema.name : '');
+    el('heroTitle').textContent = 'Nothing scheduled yet';
+    el('heroSub').textContent = 'Check back soon, or browse all films.';
+    el('heroMeta').textContent = '';
+    el('heroBookBtn').style.display = 'none';
+    return;
+  }
+  el('showingEmptyNote').style.display = 'none';
+  el('heroBookBtn').style.display = 'inline-flex';
+
+  // Group showtimes by movie
+  const groups = new Map();
+  data.forEach(s => {
+    if (!s.movies) return;
+    if (!groups.has(s.movie_id)) groups.set(s.movie_id, { movie: s.movies, showtimes: [] });
+    groups.get(s.movie_id).showtimes.push(s);
+  });
+  const groupList = [...groups.values()];
+  if (groupList.length === 0) {
+    el('showingEmptyNote').style.display = 'block';
+    return;
+  }
+
+  // Hero = soonest showing overall
+  renderHero(cinema, groupList[0].movie, data[0]);
+
+  // Film row = one card per movie playing here
+  groupList.forEach(({ movie, showtimes }) => renderFilmCard(movie, showtimes, cinema));
+}
+
+function renderHero(cinema, movie, showtime){
+  el('heroEyebrow').textContent = 'Now showing \u00b7 ' + (cinema ? cinema.name : '');
+  el('heroTitle').textContent = movie.title;
+  el('heroSub').textContent = [movie.language, movie.genre].filter(Boolean).join(' \u00b7 ') +
+    (movie.synopsis ? '. ' + movie.synopsis : '');
+  el('heroMeta').innerHTML = [showtime.format, movie.duration_minutes ? movie.duration_minutes + ' min' : null, showtime.screen]
+    .filter(Boolean).map(t => `<span>${escapeHtml(t)}</span>`).join('<span>\u00b7</span>');
+  el('heroBookBtn').onclick = (e) => {
+    e.preventDefault();
+    setSeatmapHeader(movie, showtime);
+    el('seats').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+}
+
+function setSeatmapHeader(movie, showtime){
+  const when = new Date(showtime.show_time).toLocaleString('en-GB', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+  document.querySelector('.seatmap-header h3').textContent = movie.title;
+  document.querySelector('.seatmap-header .meta').textContent =
+    `${when} \u00b7 ${showtime.format ? showtime.format + ' \u00b7 ' : ''}Screen ${showtime.screen || '—'}`;
+}
+
+function renderFilmCard(movie, showtimes, cinema){
+  const stub = document.createElement('div');
+  stub.className = 'stub';
+  stub.innerHTML = `
+    <div class="stub-poster" style="${movie.poster_url ? `background-image:url('${movie.poster_url}'); background-size:cover; background-position:center;` : ''}">
+      ${!movie.poster_url ? '<div class="reel"></div>' : ''}
+      ${movie.rating_code ? `<span class="stub-badge">${escapeHtml(movie.rating_code)}</span>` : ''}
+    </div>
+    <div class="stub-body">
+      <h3>${escapeHtml(movie.title)}</h3>
+      <p class="meta">${escapeHtml([movie.genre, movie.language].filter(Boolean).join(' \u00b7 '))}</p>
+      <div class="stub-perf-h"></div>
+      <div class="times"></div>
+    </div>`;
+
+  const timesEl = stub.querySelector('.times');
+  showtimes.forEach(s => {
+    const btn = document.createElement('button');
+    btn.textContent = new Date(s.show_time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    btn.addEventListener('click', () => {
+      timesEl.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      setSeatmapHeader(movie, s);
+      el('seats').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    timesEl.appendChild(btn);
+  });
+
+  el('filmRow').appendChild(stub);
+}
+
+loadCinemas();
+</script>
 
 </body>
 </html>
