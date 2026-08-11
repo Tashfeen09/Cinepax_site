@@ -4,100 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#1b1035">
+<meta name="theme-color" content="#0f0b16">
 <meta name="robots" content="noindex, nofollow">
 <title>Admin — Cinepax</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Mukta:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg: #1b1035; --bg-raised: #241443; --bg-card: #2b1850;
-    --magenta: #e8467c; --magenta-bright: #f2608f;
-    --marigold: #f2a93c; --marigold-bright: #ffc266;
-    --teal: #1fa7a0; --teal-bright: #29c4bc;
-    --cream: #fdf3e0; --muted: #b3a2d6; --line: rgba(242,169,60,0.2);
-    --danger: #e04848;
-  }
-  *{ box-sizing: border-box; margin:0; padding:0; }
-  html, body{ max-width: 100%; overflow-x: hidden; }
-  body{ background: var(--bg); color: var(--cream); font-family: 'Mukta', sans-serif; line-height: 1.5; -webkit-font-smoothing: antialiased; }
-  a{ color: inherit; }
-  button, input, textarea, select{ font-family: inherit; }
-  .display{ font-family: 'Baloo 2', sans-serif; font-weight: 700; }
-  .mono{ font-family: 'IBM Plex Mono', monospace; }
-
-  #loginScreen{ min-height: 100vh; display:flex; align-items:center; justify-content:center; padding: 20px; }
-  .login-card{ background: var(--bg-card); border: 1px solid var(--line); border-radius: 16px; padding: 28px; width: 100%; max-width: 360px; }
-  .login-card h1{ font-size: 1.6rem; color: var(--cream); margin-bottom: 4px; }
-  .login-card p.sub{ color: var(--muted); font-size: 0.88rem; margin-bottom: 20px; }
-  .field{ margin-bottom: 14px; }
-  .field label{ display:block; font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--marigold-bright); margin-bottom: 6px; }
-  .field input, .field select, .field textarea{
-    width:100%; background: var(--bg-raised); border: 1px solid var(--line); border-radius: 8px;
-    padding: 11px 12px; color: var(--cream); font-size: 0.95rem;
-  }
-  .field textarea{ resize: vertical; min-height: 80px; }
-  .field input:focus, .field select:focus, .field textarea:focus{ outline:none; border-color: var(--marigold); }
-  .btn{ font-family: 'Baloo 2', sans-serif; font-weight: 700; border: none; border-radius: 9px; padding: 12px 20px; cursor: pointer; font-size: 0.95rem; }
-  .btn-primary{ background: var(--magenta); color: var(--cream); width: 100%; }
-  .btn-primary:hover{ background: var(--magenta-bright); }
-  .btn-secondary{ background: var(--bg-raised); color: var(--cream); border: 1px solid var(--line); }
-  .btn-danger{ background: var(--danger); color: var(--cream); }
-  .btn-small{ padding: 8px 14px; font-size: 0.85rem; }
-  .error-text{ color: var(--danger); font-size: 0.85rem; margin-top: 10px; min-height: 1.2em; }
-
-  #adminScreen{ display:none; }
-  #adminScreen.active{ display:block; }
-  header{ position: sticky; top:0; z-index: 50; background: rgba(27,16,53,0.96); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); padding: 14px 16px; display:flex; justify-content: space-between; align-items:center; }
-  header .brand{ font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 1.3rem; }
-  header .userbar{ display:flex; align-items:center; gap: 10px; font-size: 0.8rem; color: var(--muted); }
-
-  .tabs{ display:flex; gap: 6px; padding: 14px 16px 0; overflow-x: auto; }
-  .tab-btn{ background: var(--bg-card); border: 1px solid var(--line); color: var(--muted); border-radius: 9px 9px 0 0; padding: 10px 16px; font-family: 'Baloo 2', sans-serif; font-weight: 600; cursor: pointer; white-space: nowrap; }
-  .tab-btn.active{ background: var(--bg-raised); color: var(--marigold-bright); border-bottom-color: var(--bg-raised); }
-
-  main{ padding: 18px 16px 60px; max-width: 900px; margin: 0 auto; }
-  .panel{ display:none; }
-  .panel.active{ display:block; }
-
-  .panel-head{ display:flex; justify-content: space-between; align-items:center; margin-bottom: 16px; gap: 10px; flex-wrap: wrap; }
-  .panel-head h2{ font-size: 1.3rem; }
-
-  .form-card{ background: var(--bg-card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin-bottom: 20px; display:none; }
-  .form-card.open{ display:block; }
-  .field-row{ display:grid; gap: 12px; }
-  @media(min-width:520px){ .field-row.two{ grid-template-columns: 1fr 1fr; } .field-row.three{ grid-template-columns: 1fr 1fr 1fr; } }
-
-  .poster-preview{ width: 90px; height: 130px; border-radius: 8px; object-fit: cover; background: var(--bg-raised); border: 1px solid var(--line); }
-
-  .movie-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(110px,1fr)); gap: 14px; }
-  .movie-card{ cursor:pointer; background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px; overflow:hidden; text-align:left; }
-  .movie-card .poster{ width:100%; aspect-ratio: 2/3; object-fit: cover; background: var(--bg-raised); display:flex; align-items:center; justify-content:center; color: var(--muted); font-size: 0.7rem; text-align:center; }
-  .movie-card .info{ padding: 8px 10px; }
-  .movie-card .info .title{ font-family: 'Baloo 2', sans-serif; font-weight: 600; font-size: 0.85rem; line-height: 1.2; }
-  .movie-card .info .meta{ color: var(--muted); font-size: 0.7rem; margin-top: 3px; }
-
-  .list-row{ background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 10px; display:flex; justify-content: space-between; align-items:center; gap: 10px; }
-  .list-row .rowtext .rt-title{ font-family: 'Baloo 2', sans-serif; font-weight: 600; }
-  .list-row .rowtext .rt-sub{ color: var(--muted); font-size: 0.82rem; margin-top: 2px; }
-  .list-row .rowbtns{ display:flex; gap: 6px; flex-shrink:0; }
-
-  #movieModal{ position: fixed; inset:0; background: rgba(10,5,20,0.75); z-index: 200; display:none; align-items:flex-end; justify-content:center; }
-  #movieModal.open{ display:flex; }
-  .modal-sheet{ background: var(--bg); border: 1px solid var(--line); border-radius: 18px 18px 0 0; width:100%; max-width: 560px; max-height: 88vh; overflow-y: auto; padding: 20px; }
-  .modal-sheet .modal-top{ display:flex; justify-content: space-between; align-items:flex-start; margin-bottom: 14px; }
-  .modal-sheet .modal-close{ background:none; border:none; color: var(--muted); font-size: 1.3rem; cursor:pointer; }
-  .modal-poster{ width: 120px; border-radius: 10px; margin-bottom: 14px; }
-  .modal-sheet h3{ font-size: 1.4rem; margin-bottom: 4px; }
-  .modal-sheet .meta-line{ color: var(--muted); font-size: 0.85rem; margin-bottom: 10px; }
-  .modal-sheet .synopsis{ font-size: 0.92rem; color: var(--cream); margin-bottom: 16px; }
-  .modal-actions{ display:flex; gap: 10px; margin-top: 10px; }
-
-  .empty-note{ color: var(--muted); font-size: 0.88rem; padding: 20px 0; text-align:center; }
-  .toast{ position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--teal); color: var(--cream); padding: 10px 20px; border-radius: 30px; font-size: 0.88rem; font-weight: 600; z-index: 300; display:none; }
-  .toast.show{ display:block; }
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Libre+Franklin:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -467,7 +380,7 @@ function renderMovieGrid(){
   el('movieEmptyNote').style.display = allMovies.length ? 'none' : 'block';
   allMovies.forEach(m => {
     const card = document.createElement('button');
-    card.className = 'movie-card';
+    card.className = 'admin-movie-card';
     card.innerHTML = `
       ${m.poster_url ? `<img class="poster" src="${m.poster_url}" alt="">` : `<div class="poster">No poster</div>`}
       <div class="info">
