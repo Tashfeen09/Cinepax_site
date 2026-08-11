@@ -11,6 +11,21 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Libre+Franklin:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<style>
+  /* Homepage-only override: the full Cinepax lockup needs real vertical
+     room to read as bold rather than cramped, so the header grows to
+     fit it instead of the logo shrinking to fit the header. */
+  header .nav-bar{ padding: 20px 20px; }
+  .brand-logo{ display:flex; align-items:center; }
+  .brand-logo-img{ height: 58px; width: auto; display:block; }
+  @media (min-width: 480px){
+    .brand-logo-img{ height: 72px; }
+  }
+  @media (min-width: 720px){
+    header .nav-bar{ padding: 26px 20px; }
+    .brand-logo-img{ height: 88px; }
+  }
+</style>
 </head>
 <body>
 
@@ -18,7 +33,7 @@
 
 <header>
   <div class="nav-bar">
-    <a href="#top" class="brand" aria-label="Cinepax home"><span class="name">CINEPAX</span></a>
+    <a href="#top" class="brand brand-logo" aria-label="Cinepax home"><img src="cinepax-logo.svg" alt="Cinepax" class="brand-logo-img"></a>
     <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="navOverlay" aria-label="Open menu"><span></span></button>
   </div>
 </header>
