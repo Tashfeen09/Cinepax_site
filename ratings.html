@@ -4,145 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#1b1035">
+<meta name="theme-color" content="#0f0b16">
 <meta name="description" content="A guide to Pakistan's film rating system — what U and A certifications mean, and how to choose age-appropriate movies at Cinepax.">
 <title>Ratings Guide — Cinepax</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Mukta:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg: #1b1035;
-    --bg-raised: #241443;
-    --bg-card: #2b1850;
-    --magenta: #e8467c;
-    --magenta-bright: #f2608f;
-    --marigold: #f2a93c;
-    --marigold-bright: #ffc266;
-    --teal: #1fa7a0;
-    --teal-bright: #29c4bc;
-    --cream: #fdf3e0;
-    --muted: #b3a2d6;
-    --line: rgba(242,169,60,0.2);
-  }
-  *{ box-sizing: border-box; margin:0; padding:0; }
-  html{ scroll-behavior: smooth; }
-  html, body{ max-width: 100%; overflow-x: hidden; }
-  body{
-    background: var(--bg); color: var(--cream); font-family: 'Mukta', sans-serif;
-    line-height: 1.5; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%;
-  }
-  a{ color: inherit; text-decoration: none; }
-  img, svg{ display:block; max-width:100%; }
-  button{ font-family: inherit; }
-
-  .skip-link{ position: absolute; left: -999px; top: 0; background: var(--marigold); color: #1b1035; padding: 12px 20px; font-weight: 700; z-index: 999; }
-  .skip-link:focus{ left: 12px; top: 12px; }
-  :focus-visible{ outline: 3px solid var(--marigold-bright); outline-offset: 2px; }
-
-  .display{ font-family: 'Baloo 2', sans-serif; font-weight: 700; letter-spacing: 0.01em; line-height: 1; }
-  .mono{ font-family: 'IBM Plex Mono', monospace; }
-  .eyebrow{ font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.7rem; color: var(--marigold-bright); }
-
-  header{ position: sticky; top: 0; z-index: 100; background: rgba(27,16,53,0.94); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
-  .nav-bar{ display:flex; align-items:center; justify-content: space-between; padding: 14px 20px; max-width: 1200px; margin: 0 auto; }
-  .brand .name{ font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 1.7rem; color: var(--cream); letter-spacing: 0.01em; }
-  .menu-toggle{ background: none; border: 1px solid var(--line); border-radius: 8px; width: 44px; height: 44px; display:flex; flex-direction: column; align-items:center; justify-content:center; gap: 5px; cursor:pointer; }
-  .menu-toggle span, .menu-toggle::before, .menu-toggle::after{ content:''; display:block; width: 20px; height: 2px; background: var(--marigold); }
-
-  .nav-overlay{ position: fixed; inset: 0; background: var(--bg); z-index: 200; display: none; flex-direction: column; padding: 20px; overflow-y: auto; }
-  .nav-overlay.open{ display:flex; }
-  .nav-overlay-top{ display:flex; justify-content: space-between; align-items:center; margin-bottom: 32px; }
-  .nav-grid{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex: 1; }
-  @media (max-width: 340px){ .nav-grid{ grid-template-columns: 1fr; } }
-  .nav-grid a{ background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px; padding: 20px 14px; font-family: 'Baloo 2', sans-serif; font-weight: 600; font-size: 1.2rem; color: var(--cream); display:flex; align-items:center; }
-  .nav-grid a:hover, .nav-grid a:focus-visible{ border-color: var(--marigold); color: var(--marigold-bright); }
-  .nav-overlay-footer{ margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--muted); display: flex; flex-direction: column; gap: 8px; }
-
-  .arch-band{
-    height: 26px;
-    background: repeating-linear-gradient(90deg, var(--marigold) 0 20px, var(--magenta) 20px 40px, var(--teal) 40px 60px);
-    -webkit-mask-image: radial-gradient(circle at 10px 2px, transparent 11px, black 11.5px);
-    mask-image: radial-gradient(circle at 10px 2px, transparent 11px, black 11.5px);
-    -webkit-mask-size: 20px 100%; mask-size: 20px 100%;
-    -webkit-mask-repeat: repeat-x; mask-repeat: repeat-x;
-  }
-
-  .page-hero{ padding: 44px 20px 36px; border-bottom: 1px solid var(--line); }
-  @media (max-width: 360px){ .page-hero{ padding: 32px 16px 28px; } }
-  .page-hero-inner{ max-width: 1200px; margin: 0 auto; }
-  .page-hero h1{ font-size: clamp(2.6rem, 11vw, 4.2rem); color: var(--cream); margin-top: 12px; }
-  .page-hero .sub{ margin-top: 14px; color: var(--muted); font-size: 1rem; max-width: 50ch; }
-
-  section{ padding: 44px 20px; max-width: 1200px; margin: 0 auto; }
-  @media (max-width: 360px){ section{ padding: 32px 16px; } }
-  .section-head{ margin-bottom: 26px; }
-  .section-head h2{ font-size: clamp(1.6rem, 5.5vw, 2.1rem); color: var(--cream); margin-top: 6px; }
-  .section-head p{ color: var(--muted); margin-top: 8px; max-width: 60ch; }
-
-  /* ===== Rating cards ===== */
-  .rating-grid{ display: grid; gap: 18px; }
-  @media(min-width: 640px){ .rating-grid{ grid-template-columns: 1fr 1fr; } }
-  .rating-card{
-    background: var(--bg-card); border: 1px solid var(--line); border-radius: 16px;
-    padding: 26px; display: flex; flex-direction: column; gap: 14px;
-  }
-  .rating-card.rating-u{ border-color: rgba(31,167,160,0.4); }
-  .rating-card.rating-a{ border-color: rgba(232,70,124,0.4); }
-  .rating-badge{
-    width: 64px; height: 64px; border-radius: 14px; display:flex; align-items:center; justify-content:center;
-    font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 1.6rem; flex-shrink: 0;
-  }
-  .rating-u .rating-badge{ background: rgba(31,167,160,0.16); color: var(--teal-bright); border: 1.5px solid var(--teal); }
-  .rating-a .rating-badge{ background: rgba(232,70,124,0.16); color: var(--magenta-bright); border: 1.5px solid var(--magenta); }
-  .rating-card h3{ font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 1.3rem; color: var(--cream); }
-  .rating-card .rating-sub{ font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-top: -8px; }
-  .rating-card p{ color: var(--muted); font-size: 0.94rem; }
-  .rating-tags{ display:flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
-  .rating-tags span{ background: var(--bg-raised); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; font-size: 0.78rem; color: var(--cream); }
-
-  /* ===== Boards info ===== */
-  .board-list{ display: grid; gap: 14px; }
-  @media(min-width: 720px){ .board-list{ grid-template-columns: repeat(3, 1fr); } }
-  .board-card{ background: var(--bg-raised); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
-  .board-card h4{ font-family: 'Baloo 2', sans-serif; font-size: 1.05rem; color: var(--marigold-bright); margin-bottom: 6px; }
-  .board-card p{ color: var(--muted); font-size: 0.86rem; }
-
-  /* ===== Where to find it ===== */
-  .finder-card{ background: var(--bg-card); border: 1px solid var(--line); border-radius: 16px; padding: 22px; display: flex; gap: 16px; align-items: flex-start; }
-  .finder-card svg{ width: 28px; height: 28px; flex-shrink: 0; margin-top: 2px; }
-  .finder-card svg path{ fill: var(--marigold-bright); }
-  .finder-card h3{ font-family: 'Baloo 2', sans-serif; font-size: 1.1rem; margin-bottom: 6px; }
-  .finder-card p{ color: var(--muted); font-size: 0.92rem; }
-
-  /* ===== FAQ ===== */
-  .faq-item{ border-bottom: 1px solid var(--line); padding: 16px 0; }
-  .faq-item:first-child{ padding-top: 0; }
-  .faq-item summary{ cursor: pointer; font-family: 'Baloo 2', sans-serif; font-weight: 600; font-size: 1.02rem; color: var(--cream); list-style: none; display:flex; justify-content: space-between; align-items:center; gap: 12px; }
-  .faq-item summary::-webkit-details-marker{ display:none; }
-  .faq-item summary::after{ content:'+'; color: var(--marigold-bright); font-size: 1.4rem; font-weight: 400; flex-shrink: 0; }
-  .faq-item[open] summary::after{ content:'\2212'; }
-  .faq-item p{ color: var(--muted); font-size: 0.92rem; margin-top: 10px; max-width: 62ch; }
-
-  .btn{ font-family: 'Baloo 2', sans-serif; font-weight: 700; font-size: 1.05rem; padding: 14px 26px; border-radius: 10px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
-  .btn-primary{ background: var(--magenta); color: var(--cream); }
-  .btn-primary:hover{ background: var(--magenta-bright); }
-
-  footer{ border-top: 1px solid var(--line); background: var(--bg-raised); padding: 40px 20px 28px; }
-  .footer-inner{ max-width: 1200px; margin: 0 auto; display: grid; gap: 28px; grid-template-columns: 1fr; }
-  @media(min-width: 720px){ .footer-inner{ grid-template-columns: 1.4fr 1fr 1fr; } }
-  .footer-brand .name{ font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 1.6rem; color: var(--cream); }
-  .footer-brand p{ color: var(--muted); font-size: 0.85rem; margin-top: 8px; max-width: 34ch; }
-  .footer-col h4{ font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.12em; color: var(--marigold); margin-bottom: 12px; }
-  .footer-col ul{ list-style: none; display:flex; flex-direction: column; gap: 8px; }
-  .footer-col a{ color: var(--muted); font-size: 0.88rem; }
-  .footer-col a:hover{ color: var(--cream); }
-  .footer-bottom{ max-width: 1200px; margin: 28px auto 0; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.78rem; display:flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
-
-  @media (prefers-reduced-motion: reduce){
-    *{ animation: none !important; transition: none !important; scroll-behavior: auto !important; }
-  }
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Libre+Franklin:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -364,52 +232,7 @@
 
 <!-- ===== Cinepax Chat Widget ===== -->
 <!-- Paste this block just before </body> on every page. Requires the CSS variables
-     already defined in each page's <style> (--bg-card, --line, --magenta, etc). -->
-
-<style>
-  #chatToggle{
-    position: fixed; bottom: 20px; right: 20px; z-index: 300;
-    width: 56px; height: 56px; border-radius: 50%; border: none; cursor: pointer;
-    background: var(--magenta); color: var(--cream); display:flex; align-items:center; justify-content:center;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
-  }
-  #chatToggle svg{ width: 26px; height: 26px; }
-  #chatToggle svg path{ fill: var(--cream); }
-
-  #chatPanel{
-    position: fixed; bottom: 88px; right: 16px; left: 16px; z-index: 300;
-    max-width: 380px; margin-left: auto;
-    background: var(--bg-card); border: 1px solid var(--line); border-radius: 16px;
-    display: none; flex-direction: column; height: min(70vh, 520px); overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.45);
-  }
-  #chatPanel.open{ display: flex; }
-
-  #chatHeader{
-    padding: 14px 16px; border-bottom: 1px solid var(--line); display:flex; justify-content: space-between; align-items:center;
-  }
-  #chatHeader span{ font-family: 'Baloo 2', sans-serif; font-weight: 700; color: var(--cream); }
-  #chatClose{ background:none; border:none; color: var(--muted); font-size: 1.1rem; cursor:pointer; }
-
-  #chatMessages{ flex: 1; overflow-y: auto; padding: 14px 16px; display:flex; flex-direction: column; gap: 10px; }
-  .chat-msg{ font-size: 0.9rem; line-height: 1.4; max-width: 85%; padding: 9px 12px; border-radius: 12px; }
-  .chat-msg.user{ align-self: flex-end; background: var(--magenta); color: var(--cream); border-bottom-right-radius: 3px; }
-  .chat-msg.bot{ align-self: flex-start; background: var(--bg-raised); color: var(--cream); border: 1px solid var(--line); border-bottom-left-radius: 3px; }
-  .chat-msg.typing{ color: var(--muted); font-style: italic; }
-
-  #chatInputRow{ display:flex; gap: 8px; padding: 12px; border-top: 1px solid var(--line); }
-  #chatInput{
-    flex: 1; background: var(--bg-raised); border: 1px solid var(--line); border-radius: 10px;
-    padding: 10px 12px; color: var(--cream); font-size: 0.9rem; font-family: inherit; resize: none;
-  }
-  #chatInput:focus{ outline: none; border-color: var(--marigold); }
-  #chatSend{
-    background: var(--teal); color: var(--cream); border: none; border-radius: 10px;
-    padding: 0 16px; font-weight: 700; cursor: pointer; font-family: 'Baloo 2', sans-serif;
-  }
-  #chatSend:disabled{ opacity: 0.5; cursor: not-allowed; }
-</style>
-
+     already defined in each page's 
 <button id="chatToggle" aria-label="Open chat assistant" aria-expanded="false">
   <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"></path></svg>
 </button>

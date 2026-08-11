@@ -4,95 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#1b1035">
+<meta name="theme-color" content="#0f0b16">
 <meta name="description" content="All films now showing and coming soon at Cinepax.">
 <title>All Films — Cinepax</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Mukta:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg: #1b1035; --bg-raised: #241443; --bg-card: #2b1850;
-    --magenta: #e8467c; --magenta-bright: #f2608f;
-    --marigold: #f2a93c; --marigold-bright: #ffc266;
-    --teal: #1fa7a0; --teal-bright: #29c4bc;
-    --cream: #fdf3e0; --muted: #b3a2d6; --line: rgba(242,169,60,0.2);
-  }
-  *{ box-sizing: border-box; margin:0; padding:0; }
-  html{ scroll-behavior: smooth; }
-  html, body{ max-width: 100%; overflow-x: hidden; }
-  body{ background: var(--bg); color: var(--cream); font-family: 'Mukta', sans-serif; line-height: 1.5; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; }
-  a{ color: inherit; text-decoration: none; }
-  img, svg{ display:block; max-width:100%; }
-  button{ font-family: inherit; }
-
-  .skip-link{ position: absolute; left: -999px; top: 0; background: var(--marigold); color: #1b1035; padding: 12px 20px; font-weight: 700; z-index: 999; }
-  .skip-link:focus{ left: 12px; top: 12px; }
-  :focus-visible{ outline: 3px solid var(--marigold-bright); outline-offset: 2px; }
-
-  .display{ font-family: 'Baloo 2', sans-serif; font-weight: 700; letter-spacing: 0.01em; line-height: 1; }
-  .eyebrow{ font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.7rem; color: var(--marigold-bright); }
-
-  header{ position: sticky; top: 0; z-index: 100; background: rgba(27,16,53,0.94); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
-  .nav-bar{ display:flex; align-items:center; justify-content: space-between; padding: 14px 20px; max-width: 1200px; margin: 0 auto; }
-  .brand .name{ font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 1.7rem; color: var(--cream); letter-spacing: 0.01em; }
-  .menu-toggle{ background: none; border: 1px solid var(--line); border-radius: 8px; width: 44px; height: 44px; display:flex; flex-direction: column; align-items:center; justify-content:center; gap: 5px; cursor:pointer; }
-  .menu-toggle span, .menu-toggle::before, .menu-toggle::after{ content:''; display:block; width: 20px; height: 2px; background: var(--marigold); }
-
-  .nav-overlay{ position: fixed; inset: 0; background: var(--bg); z-index: 200; display: none; flex-direction: column; padding: 20px; overflow-y: auto; }
-  .nav-overlay.open{ display:flex; }
-  .nav-overlay-top{ display:flex; justify-content: space-between; align-items:center; margin-bottom: 32px; }
-  .nav-grid{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex: 1; }
-  @media (max-width: 340px){ .nav-grid{ grid-template-columns: 1fr; } }
-  .nav-grid a{ background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px; padding: 20px 14px; font-family: 'Baloo 2', sans-serif; font-weight: 600; font-size: 1.2rem; color: var(--cream); display:flex; align-items:center; }
-  .nav-grid a:hover, .nav-grid a:focus-visible{ border-color: var(--marigold); color: var(--marigold-bright); }
-  .nav-overlay-footer{ margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--muted); display: flex; flex-direction: column; gap: 8px; }
-
-  .arch-band{
-    height: 26px;
-    background: repeating-linear-gradient(90deg, var(--marigold) 0 20px, var(--magenta) 20px 40px, var(--teal) 40px 60px);
-    -webkit-mask-image: radial-gradient(circle at 10px 2px, transparent 11px, black 11.5px);
-    mask-image: radial-gradient(circle at 10px 2px, transparent 11px, black 11.5px);
-    -webkit-mask-size: 20px 100%; mask-size: 20px 100%;
-    -webkit-mask-repeat: repeat-x; mask-repeat: repeat-x;
-  }
-
-  .page-hero{ padding: 40px 20px 30px; border-bottom: 1px solid var(--line); }
-  .page-hero-inner{ max-width: 1200px; margin: 0 auto; }
-  .page-hero h1{ font-size: clamp(2.4rem, 10vw, 3.6rem); color: var(--cream); margin-top: 10px; }
-
-  section{ padding: 32px 20px 50px; max-width: 1200px; margin: 0 auto; }
-
-  .filter-row{ display:flex; gap: 8px; margin-bottom: 22px; overflow-x: auto; padding-bottom: 4px; }
-  .filter-chip{ background: var(--bg-card); border: 1px solid var(--line); color: var(--muted); border-radius: 999px; padding: 8px 16px; font-size: 0.85rem; font-weight: 600; white-space: nowrap; cursor: pointer; }
-  .filter-chip.active{ background: var(--magenta); color: var(--cream); border-color: var(--magenta); }
-
-  .film-grid{ display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 18px; }
-  .film-card{ display:block; }
-  .film-card .poster-wrap{ position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 2/3; background: var(--bg-card); border: 1px solid var(--line); }
-  .film-card img{ width:100%; height:100%; object-fit: cover; }
-  .film-card .no-poster{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; color: var(--muted); font-size: 0.75rem; text-align:center; padding: 10px; }
-  .film-card .rating-pill{ position:absolute; top:8px; right:8px; background: rgba(27,16,53,0.85); border: 1px solid var(--line); border-radius: 6px; padding: 2px 7px; font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--marigold-bright); }
-  .film-card .title{ font-family: 'Baloo 2', sans-serif; font-weight: 600; font-size: 0.95rem; margin-top: 10px; color: var(--cream); line-height: 1.25; }
-  .film-card .meta{ color: var(--muted); font-size: 0.78rem; margin-top: 3px; }
-
-  .loading-note, .empty-note{ color: var(--muted); font-size: 0.92rem; text-align: center; padding: 40px 0; }
-
-  footer{ border-top: 1px solid var(--line); background: var(--bg-raised); padding: 40px 20px 28px; }
-  .footer-inner{ max-width: 1200px; margin: 0 auto; display: grid; gap: 28px; grid-template-columns: 1fr; }
-  @media(min-width: 720px){ .footer-inner{ grid-template-columns: 1.4fr 1fr 1fr; } }
-  .footer-brand .name{ font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 1.6rem; color: var(--cream); }
-  .footer-brand p{ color: var(--muted); font-size: 0.85rem; margin-top: 8px; max-width: 34ch; }
-  .footer-col h4{ font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.12em; color: var(--marigold); margin-bottom: 12px; }
-  .footer-col ul{ list-style: none; display:flex; flex-direction: column; gap: 8px; }
-  .footer-col a{ color: var(--muted); font-size: 0.88rem; }
-  .footer-col a:hover{ color: var(--cream); }
-  .footer-bottom{ max-width: 1200px; margin: 28px auto 0; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.78rem; display:flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
-
-  @media (prefers-reduced-motion: reduce){
-    *{ animation: none !important; transition: none !important; scroll-behavior: auto !important; }
-  }
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Libre+Franklin:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
