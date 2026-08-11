@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" width="720" height="300">
+  <defs>
+    <style>
+      .wordmark { font-family: 'Bebas Neue', sans-serif; font-weight: 400; }
+      .tagline  { font-family: 'IBM Plex Mono', monospace; font-weight: 500; }
+    </style>
+
+    <clipPath id="boardClip">
+      <rect x="24" y="24" width="672" height="232" rx="22"/>
+    </clipPath>
+
+    <linearGradient id="beam" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"  stop-color="#f3ead8" stop-opacity="0.16"/>
+      <stop offset="45%" stop-color="#f3ead8" stop-opacity="0.03"/>
+      <stop offset="100%" stop-color="#f3ead8" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="curtainL" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a13355"/>
+      <stop offset="100%" stop-color="#5e1730"/>
+    </linearGradient>
+    <linearGradient id="curtainR" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#a13355"/>
+      <stop offset="100%" stop-color="#5e1730"/>
+    </linearGradient>
+
+    <filter id="bulbGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="2.1" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+
+    <radialGradient id="dotGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f2c169" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#f2c169" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- ===== signboard ===== -->
+  <rect x="24" y="24" width="672" height="232" rx="22" fill="#0f0b16" stroke="#17111f" stroke-width="2"/>
+
+  <g clip-path="url(#boardClip)">
+    <!-- subtle vertical vignette so the board doesn't read flat -->
+    <rect x="24" y="24" width="672" height="232" fill="#17111f" opacity="0.35"/>
+
+    <!-- velvet curtain draped in from each top corner -->
+    <path d="M24,24 L150,24 C110,55 70,70 24,90 Z" fill="url(#curtainL)"/>
+    <path d="M24,24 L150,24 C110,55 70,70 24,90 Z" fill="none" stroke="#7d1f3f" stroke-width="1" opacity="0.5"/>
+    <path d="M70,30 C95,48 110,58 96,90" fill="none" stroke="#5e1730" stroke-width="2" opacity="0.6"/>
+    <path d="M45,26 C68,45 80,56 66,86" fill="none" stroke="#5e1730" stroke-width="2" opacity="0.5"/>
+
+    <path d="M696,24 L570,24 C610,55 650,70 696,90 Z" fill="url(#curtainR)"/>
+    <path d="M696,24 L570,24 C610,55 650,70 696,90 Z" fill="none" stroke="#7d1f3f" stroke-width="1" opacity="0.5"/>
+    <path d="M650,30 C625,48 610,58 624,90" fill="none" stroke="#5e1730" stroke-width="2" opacity="0.6"/>
+    <path d="M675,26 C652,45 640,56 654,86" fill="none" stroke="#5e1730" stroke-width="2" opacity="0.5"/>
+
+    <!-- projector spotlight sweeping across the sign -->
+    <polygon points="24,24 260,24 696,256 460,256" fill="url(#beam)"/>
+  </g>
+
+  <!-- ===== chasing marquee bulb border ===== -->
+  <g filter="url(#bulbGlow)">
+    <circle cx="46.0" cy="24.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="70.2" cy="24.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="94.3" cy="24.0" r="4.3" fill="#e0a840" opacity="1.0"/>
+    <circle cx="118.5" cy="24.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="142.6" cy="24.0" r="4.3" fill="#3f7f90" opacity="0.75"/>
+    <circle cx="166.8" cy="24.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="190.9" cy="24.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="215.1" cy="24.0" r="4.3" fill="#e0a840" opacity="1.0"/>
+    <circle cx="239.2" cy="24.0" r="4.3" fill="#7d1f3f" opacity="0.75"/>
+    <circle cx="263.4" cy="24.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="287.5" cy="24.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="311.7" cy="24.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="335.8" cy="24.0" r="4.3" fill="#e0a840" opacity="1.0"/>
+    <circle cx="360.0" cy="24.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="384.2" cy="24.0" r="4.3" fill="#3f7f90" opacity="0.75"/>
+    <circle cx="408.3" cy="24.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="432.5" cy="24.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="456.6" cy="24.0" r="4.3" fill="#e0a840" opacity="1.0"/>
+    <circle cx="480.8" cy="24.0" r="4.3" fill="#7d1f3f" opacity="0.75"/>
+    <circle cx="504.9" cy="24.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="529.1" cy="24.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="553.2" cy="24.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="577.4" cy="24.0" r="4.3" fill="#e0a840" opacity="1.0"/>
+    <circle cx="601.5" cy="24.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="625.7" cy="24.0" r="4.3" fill="#3f7f90" opacity="0.75"/>
+    <circle cx="649.8" cy="24.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="674.0" cy="24.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="696.0" cy="46.0" r="4.3" fill="#e0a840" opacity="1.0"/>
+    <circle cx="696.0" cy="69.5" r="4.3" fill="#7d1f3f" opacity="0.75"/>
+    <circle cx="696.0" cy="93.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="696.0" cy="116.5" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="696.0" cy="140.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="696.0" cy="163.5" r="4.3" fill="#e0a840" opacity="1.0"/>
+    <circle cx="696.0" cy="187.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="696.0" cy="210.5" r="4.3" fill="#3f7f90" opacity="0.75"/>
+    <circle cx="696.0" cy="234.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="674.0" cy="256.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="649.8" cy="256.0" r="4.3" fill="#e0a840" opacity="1.0"/>
+    <circle cx="625.7" cy="256.0" r="4.3" fill="#7d1f3f" opacity="0.75"/>
+    <circle cx="601.5" cy="256.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="577.4" cy="256.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="553.2" cy="256.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="529.1" cy="256.0" r="4.3" fill="#e0a840" opacity="1.0"/>
+    <circle cx="504.9" cy="256.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="480.8" cy="256.0" r="4.3" fill="#3f7f90" opacity="0.75"/>
+    <circle cx="456.6" cy="256.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="432.5" cy="256.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="408.3" cy="256.0" r="4.3" fill="#e0a840" opacity="1.0"/>
+    <circle cx="384.2" cy="256.0" r="4.3" fill="#7d1f3f" opacity="0.75"/>
+    <circle cx="360.0" cy="256.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="335.8" cy="256.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="311.7" cy="256.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="287.5" cy="256.0" r="4.3" fill="#e0a840" opacity="1.0"/>
+    <circle cx="263.4" cy="256.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="239.2" cy="256.0" r="4.3" fill="#3f7f90" opacity="0.75"/>
+    <circle cx="215.1" cy="256.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="190.9" cy="256.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="166.8" cy="256.0" r="4.3" fill="#e0a840" opacity="1.0"/>
+    <circle cx="142.6" cy="256.0" r="4.3" fill="#7d1f3f" opacity="0.75"/>
+    <circle cx="118.5" cy="256.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="94.3" cy="256.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="70.2" cy="256.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="46.0" cy="256.0" r="4.3" fill="#e0a840" opacity="1.0"/>
+    <circle cx="24.0" cy="234.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="24.0" cy="210.5" r="4.3" fill="#3f7f90" opacity="0.75"/>
+    <circle cx="24.0" cy="187.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="24.0" cy="163.5" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="24.0" cy="140.0" r="4.3" fill="#e0a840" opacity="1.0"/>
+    <circle cx="24.0" cy="116.5" r="4.3" fill="#7d1f3f" opacity="0.75"/>
+    <circle cx="24.0" cy="93.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="24.0" cy="69.5" r="4.3" fill="#f2c169" opacity="1.0"/>
+    <circle cx="24.0" cy="46.0" r="4.3" fill="#f2c169" opacity="1.0"/>
+  </g>
+
+  <!-- ===== wordmark, letters alternating bright/dim like a chase-lit sign ===== -->
+  <text x="360" y="178" text-anchor="middle" class="wordmark" font-size="96" letter-spacing="6">
+    <tspan fill="#f2c169">C</tspan><tspan fill="#f3ead8">I</tspan><tspan fill="#f2c169">N</tspan><tspan fill="#f3ead8">E</tspan><tspan fill="#f2c169">P</tspan><tspan fill="#f3ead8">A</tspan><tspan fill="#f2c169">X</tspan>
+  </text>
+
+  <!-- dot of the "I" swapped for a glowing marquee bulb -->
+  <circle cx="278" cy="102" r="8" fill="url(#dotGlow)"/>
+  <circle cx="278" cy="102" r="4.2" fill="#f2c169" filter="url(#bulbGlow)"/>
+
+  <!-- ===== tagline ===== -->
+  <text x="360" y="215" text-anchor="middle" class="tagline" font-size="15" letter-spacing="5" fill="#5fa3af">LOVE · LIFE · FILLUMS</text>
+</svg>
