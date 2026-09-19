@@ -146,9 +146,10 @@ header{
 .hero-ctas{ display:flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
 
 /* ===== Page hero (secondary pages) ===== */
-.page-hero{ padding: 40px 20px 32px; border-bottom: 1px solid var(--line); }
-@media (max-width: 360px){ .page-hero{ padding: 30px 16px 26px; } }
-.page-hero-inner{ max-width: 1200px; margin: 0 auto; }
+.page-hero{ padding: 40px 0 32px; border-bottom: 1px solid var(--line); }
+@media (max-width: 360px){ .page-hero{ padding: 30px 0 26px; } }
+.page-hero-inner{ max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+@media (max-width: 360px){ .page-hero-inner{ padding: 0 16px; } }
 .page-hero h1{ font-size: clamp(2.6rem, 11vw, 4.4rem); color: var(--cream); margin-top: 10px; }
 .page-hero .sub{ margin-top: 14px; color: var(--muted); font-size: 1rem; max-width: 46ch; }
 
@@ -390,8 +391,8 @@ main.movie-main{ max-width: 900px; margin: 0 auto; padding: 24px 20px 60px; }
 .sheet-showtimes h3{ font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 1.4rem; letter-spacing: 0.01em; margin-bottom: 12px; color: var(--marigold-bright); }
 
 /* ===== Footer ===== */
-footer{ border-top: 1px solid var(--line); background: var(--bg-raised); padding: 40px 20px 28px; }
-.footer-inner{ max-width: 1200px; margin: 0 auto; display: grid; gap: 28px; grid-template-columns: 1fr; }
+footer{ border-top: 1px solid var(--line); background: var(--bg-raised); padding: 40px 0 28px; }
+.footer-inner{ width: calc(100% - 40px); max-width: 1160px; margin: 0 auto; display: grid; gap: 28px; grid-template-columns: 1fr; }
 @media(min-width: 720px){ .footer-inner{ grid-template-columns: 1.4fr 1fr 1fr; } }
 .footer-brand .name{ font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 1.8rem; letter-spacing: 0.02em; color: var(--cream); }
 .footer-brand p{ color: var(--muted); font-size: 0.85rem; margin-top: 8px; max-width: 34ch; }
@@ -400,7 +401,7 @@ footer{ border-top: 1px solid var(--line); background: var(--bg-raised); padding
 .footer-col a{ color: var(--muted); font-size: 0.88rem; }
 .footer-col a:hover{ color: var(--cream); }
 .footer-bottom{
-  max-width: 1200px; margin: 28px auto 0; padding-top: 18px; border-top: 1px solid var(--line);
+  width: calc(100% - 40px); max-width: 1160px; margin: 28px auto 0; padding-top: 18px; border-top: 1px solid var(--line);
   color: var(--muted); font-size: 0.78rem; display:flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
 }
 
@@ -481,7 +482,7 @@ header .userbar{ display:flex; align-items:center; gap: 10px; font-size: 0.8rem;
 }
 .tab-btn.active{ background: var(--bg-raised); color: var(--marigold-bright); border-bottom-color: var(--bg-raised); }
 
-main{ padding: 18px 16px 60px; max-width: 900px; margin: 0 auto; }
+#adminScreen main{ padding: 18px 16px 60px; max-width: 900px; margin: 0 auto; }
 .panel{ display:none; }
 .panel.active{ display:block; }
 
@@ -525,3 +526,61 @@ main{ padding: 18px 16px 60px; max-width: 900px; margin: 0 auto; }
   font-size: 0.88rem; font-weight: 600; z-index: 300; display:none;
 }
 .toast.show{ display:block; }
+
+/* =====================================================================
+   HOMEPAGE HERO SLIDER — full-bleed banner(s) managed from the admin
+   Hero tab. One or more slides; falls back to the newest movie's poster.
+   ===================================================================== */
+.hero-slider{ position: relative; background: var(--bg-raised); border-bottom: 1px solid var(--line); overflow: hidden; }
+.hero-slides{ position: relative; height: clamp(460px, 74vh, 700px); }
+@media (min-width: 721px){ .hero-slides{ height: clamp(440px, 50vw, 640px); } }
+
+.hero-slide{ position: absolute; inset: 0; opacity: 0; visibility: hidden; transition: opacity .7s ease, visibility .7s; }
+.hero-slide.active{ opacity: 1; visibility: visible; }
+.hero-slide picture{ display: block; width: 100%; height: 100%; }
+.hero-bg{ width: 100%; height: 100%; object-fit: cover; object-position: center 25%; }
+
+.hero-scrim{
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(to top, rgba(15,11,22,0.97) 0%, rgba(15,11,22,0.74) 30%, rgba(15,11,22,0.12) 62%, rgba(15,11,22,0) 100%),
+    linear-gradient(to right, rgba(15,11,22,0.55) 0%, rgba(15,11,22,0) 62%);
+}
+
+.hero-copy{ position: absolute; left: 0; right: 0; bottom: 0; max-width: 1200px; margin: 0 auto; padding: 0 20px 60px; }
+.hero-copy .eyebrow{ margin-bottom: 12px; }
+.hero-copy h1, .hero-copy h2{ font-family: 'Bebas Neue', sans-serif; font-weight: 400; letter-spacing: 0.02em; line-height: 1; font-size: clamp(3rem, 13vw, 6rem); color: var(--cream); word-break: break-word; max-width: 14ch; text-shadow: 0 2px 24px rgba(0,0,0,0.5); }
+.hero-copy .sub{ margin-top: 14px; color: #d9cfe6; font-size: 1rem; max-width: 46ch; }
+.hero-copy .hero-meta{ margin-top: 16px; }
+.hero-copy .hero-ctas{ margin-top: 22px; }
+
+/* Fallback slide: no banner uploaded yet, so use the poster (blurred backdrop + sharp card). */
+.hero-slide--poster .hero-bg{ filter: blur(28px) saturate(1.1); transform: scale(1.25); opacity: .55; }
+.hero-poster-card{ display: none; }
+@media (min-width: 721px){
+  .hero-poster-card{
+    display: block; position: absolute; top: 50%; transform: translateY(-56%);
+    right: max(28px, calc((100% - 1200px) / 2 + 20px));
+    width: min(230px, 22vw); aspect-ratio: 2 / 3; object-fit: cover;
+    border-radius: 12px; border: 1px solid var(--line); box-shadow: 0 18px 50px rgba(0,0,0,0.6);
+  }
+}
+
+.hero-dots{ position: absolute; left: 0; right: 0; bottom: 14px; display: flex; justify-content: center; gap: 2px; z-index: 2; }
+.hero-dot{ width: 28px; height: 28px; background: none; border: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.hero-dot::after{ content: ''; width: 10px; height: 10px; border-radius: 50%; background: rgba(243,234,216,0.35); transition: background .25s, transform .25s; }
+.hero-dot[aria-current="true"]::after{ background: var(--marigold); transform: scale(1.25); }
+
+.cinema-bar{ max-width: 1200px; margin: 0 auto; padding: 16px 20px 0; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.cinema-bar .location-picker{ margin-bottom: 0; }
+.cinema-bar .cinema-bar-label{ font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); }
+
+/* Admin: hero list + form bits */
+.hero-thumb{ width: 96px; height: 54px; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); background: var(--bg-raised); flex-shrink: 0; }
+.list-row .rowmain{ display: flex; align-items: center; gap: 12px; min-width: 0; }
+.badge{ display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; border: 1px solid var(--line); color: var(--muted); margin-right: 6px; }
+.badge.on{ color: var(--teal-bright); border-color: rgba(63,127,144,0.6); }
+.check-row{ display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.check-row input{ width: 18px; height: 18px; accent-color: var(--marigold); }
+.check-row label{ font-size: 0.92rem; color: var(--cream); }
+.field .hint{ color: var(--muted); font-size: 0.78rem; margin-top: 6px; }

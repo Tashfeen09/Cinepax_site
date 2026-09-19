@@ -11,28 +11,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Libre+Franklin:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<style>
-  /* Homepage-only: the logo is a wide lockup, not an icon, so it gets its
-     own full-width banner under the sticky nav instead of being squeezed
-     into the corner next to the menu button. */
-  .logo-banner{
-    background: var(--bg-raised);
-    border-bottom: 1px solid var(--line);
-    padding: 18px 20px 20px;
-    display: flex;
-    justify-content: center;
-  }
-  .logo-banner-img{
-    width: 100%;
-    max-width: 700px;
-    height: auto;
-    display: block;
-  }
-  @media (min-width: 720px){
-    .logo-banner{ padding: 26px 20px 28px; }
-    .logo-banner-img{ max-width: 860px; }
-  }
-</style>
 </head>
 <body>
 
@@ -45,9 +23,6 @@
   </div>
 </header>
 
-<div class="logo-banner">
-  <img src="cinepax-logo.svg" alt="Cinepax" class="logo-banner-img">
-</div>
 
 
 <nav class="nav-overlay" id="navOverlay">
@@ -74,21 +49,18 @@
 
   <div id="top">
     <div class="arch-band" role="presentation"></div>
-    <div class="hero">
-      <div class="hero-inner">
-        <label class="location-picker" for="cinemaSelect">
-          <svg viewBox="0 0 24 24"><path d="M12 2C7.6 2 4 5.6 4 10c0 5.2 6.6 11.1 7.1 11.6.5.4 1.2.4 1.7 0C13.4 21.1 20 15.2 20 10c0-4.4-3.6-8-8-8zm0 10.5c-1.4 0-2.5-1.1-2.5-2.5S10.6 7.5 12 7.5s2.5 1.1 2.5 2.5-1.1 2.5-2.5 2.5z"></path></svg>
-          <select id="cinemaSelect"><option value="">Loading cinemas...</option></select>
-        </label>
-        <p class="eyebrow" id="heroEyebrow">Now showing</p>
-        <h1 class="display" id="heroTitle">Loading...</h1>
-        <p class="sub" id="heroSub"></p>
-        <p class="hero-meta" id="heroMeta"></p>
-        <div class="hero-ctas">
-          <a href="#seats" class="btn btn-primary" id="heroBookBtn">Book this showing</a>
-          <a href="movies.html" class="btn btn-secondary">See all films</a>
-        </div>
-      </div>
+
+    <div class="hero-slider" id="heroSlider" role="region" aria-roledescription="carousel" aria-label="Featured films">
+      <div class="hero-slides" id="heroSlides"></div>
+      <div class="hero-dots" id="heroDots"></div>
+    </div>
+
+    <div class="cinema-bar">
+      <span class="cinema-bar-label">Showing at</span>
+      <label class="location-picker" for="cinemaSelect">
+        <svg viewBox="0 0 24 24"><path d="M12 2C7.6 2 4 5.6 4 10c0 5.2 6.6 11.1 7.1 11.6.5.4 1.2.4 1.7 0C13.4 21.1 20 15.2 20 10c0-4.4-3.6-8-8-8zm0 10.5c-1.4 0-2.5-1.1-2.5-2.5S10.6 7.5 12 7.5s2.5 1.1 2.5 2.5-1.1 2.5-2.5 2.5z"></path></svg>
+        <select id="cinemaSelect"><option value="">Loading cinemas...</option></select>
+      </label>
     </div>
   </div>
 
@@ -262,96 +234,6 @@
   });
 </script>
 
-<!-- ===== Cinepax Chat Widget ===== -->
-<!-- Paste this block just before </body> on every page. Requires the CSS variables
-     already defined in each page's 
-<button id="chatToggle" aria-label="Open chat assistant" aria-expanded="false">
-  <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"></path></svg>
-</button>
-
-<div id="chatPanel" role="dialog" aria-label="Cinepax chat assistant">
-  <div id="chatHeader">
-    <span>Ask Cinepax</span>
-    <button id="chatClose" aria-label="Close chat">✕</button>
-  </div>
-  <div id="chatMessages">
-    <div class="chat-msg bot">Hi! I can help with showtimes, ticket prices, ratings, or general questions about Cinepax. What do you need?</div>
-  </div>
-  <div id="chatInputRow">
-    <textarea id="chatInput" rows="1" placeholder="Type a message..."></textarea>
-    <button id="chatSend">Send</button>
-  </div>
-</div>
-
-<script>
-(function(){
-  const toggle = document.getElementById('chatToggle');
-  const panel = document.getElementById('chatPanel');
-  const closeBtn = document.getElementById('chatClose');
-  const messagesEl = document.getElementById('chatMessages');
-  const input = document.getElementById('chatInput');
-  const sendBtn = document.getElementById('chatSend');
-
-  let history = []; // { role: 'user'|'assistant', content: '...' }
-
-  function openChat(){ panel.classList.add('open'); toggle.setAttribute('aria-expanded','true'); input.focus(); }
-  function closeChat(){ panel.classList.remove('open'); toggle.setAttribute('aria-expanded','false'); }
-  toggle.addEventListener('click', () => panel.classList.contains('open') ? closeChat() : openChat());
-  closeBtn.addEventListener('click', closeChat);
-
-  function addMessage(role, text){
-    const div = document.createElement('div');
-    div.className = 'chat-msg ' + (role === 'user' ? 'user' : 'bot');
-    div.textContent = text;
-    messagesEl.appendChild(div);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-    return div;
-  }
-
-  async function sendMessage(){
-    const text = input.value.trim();
-    if (!text) return;
-    input.value = '';
-    sendBtn.disabled = true;
-    addMessage('user', text);
-    history.push({ role: 'user', content: text });
-
-    const typingEl = addMessage('bot', 'Typing...');
-    typingEl.classList.add('typing');
-
-    try {
-      const res = await fetch('/.netlify/functions/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: history })
-      });
-      const data = await res.json();
-      typingEl.remove();
-      if (data.reply) {
-        addMessage('bot', data.reply);
-        history.push({ role: 'assistant', content: data.reply });
-      } else {
-        addMessage('bot', "Sorry, something went wrong. Please try again.");
-      }
-    } catch (err) {
-      typingEl.remove();
-      addMessage('bot', "Sorry, I couldn't connect. Please try again in a moment.");
-    } finally {
-      sendBtn.disabled = false;
-    }
-  }
-
-  sendBtn.addEventListener('click', sendMessage);
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  });
-})();
-</script>
-<!-- ===== End Cinepax Chat Widget ===== -->
-
 <script type="module">
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -368,12 +250,217 @@ function escapeHtml(str){
   return d.innerHTML;
 }
 
+// Admin-entered links: refuse javascript:/data: URLs.
+function safeUrl(u){
+  const s = String(u || '').trim();
+  if (!s || /^(javascript|data|vbscript):/i.test(s)) return '';
+  return s;
+}
+
+/* ===================== HERO ===================== */
+
+function slideFromHero(h){
+  const m = h.movies || null;
+  const meta = m ? [m.genre, m.language, m.duration_minutes ? m.duration_minutes + ' min' : null, m.rating_code].filter(Boolean) : [];
+  return {
+    image: h.image_url,
+    mobileImage: h.mobile_image_url,
+    label: h.label || (m ? 'Now showing' : ''),
+    title: (h.title || (m && m.title) || '').trim(),
+    subtitle: h.subtitle || '',
+    meta,
+    href: safeUrl(h.cta_url) || (h.movie_id ? 'movie.html?id=' + encodeURIComponent(h.movie_id) : '#showing'),
+    ctaLabel: h.cta_label || 'Book tickets'
+  };
+}
+
+function slideFromMovie(m){
+  const syn = (m.synopsis || '').trim();
+  return {
+    poster: m.poster_url || '',
+    label: 'Now showing',
+    title: m.title,
+    subtitle: syn.length > 150 ? syn.slice(0, 147).trimEnd() + '...' : syn,
+    meta: [m.genre, m.language, m.duration_minutes ? m.duration_minutes + ' min' : null, m.rating_code].filter(Boolean),
+    href: 'movie.html?id=' + encodeURIComponent(m.id),
+    ctaLabel: 'View showtimes'
+  };
+}
+
+function buildSlide(s, index, total){
+  const slide = document.createElement('article');
+  slide.className = 'hero-slide' + (s.poster ? ' hero-slide--poster' : '');
+  slide.setAttribute('role', 'group');
+  slide.setAttribute('aria-roledescription', 'slide');
+  slide.setAttribute('aria-label', (index + 1) + ' of ' + total);
+
+  if (s.image) {
+    const pic = document.createElement('picture');
+    if (s.mobileImage) {
+      const src = document.createElement('source');
+      src.media = '(max-width: 720px)';
+      src.srcset = s.mobileImage;
+      pic.appendChild(src);
+    }
+    const img = document.createElement('img');
+    img.className = 'hero-bg';
+    img.src = s.image;
+    img.alt = '';
+    img.decoding = 'async';
+    if (index > 0) img.loading = 'lazy';
+    pic.appendChild(img);
+    slide.appendChild(pic);
+  } else if (s.poster) {
+    const bg = document.createElement('img');
+    bg.className = 'hero-bg';
+    bg.src = s.poster;
+    bg.alt = '';
+    slide.appendChild(bg);
+    const card = document.createElement('img');
+    card.className = 'hero-poster-card';
+    card.src = s.poster;
+    card.alt = '';
+    slide.appendChild(card);
+  }
+
+  const scrim = document.createElement('div');
+  scrim.className = 'hero-scrim';
+  slide.appendChild(scrim);
+
+  const copy = document.createElement('div');
+  copy.className = 'hero-copy';
+  if (s.label) {
+    const p = document.createElement('p');
+    p.className = 'eyebrow';
+    p.textContent = s.label;
+    copy.appendChild(p);
+  }
+  const h = document.createElement(index === 0 ? 'h1' : 'h2');
+  h.textContent = s.title;
+  copy.appendChild(h);
+  if (s.subtitle) {
+    const p = document.createElement('p');
+    p.className = 'sub';
+    p.textContent = s.subtitle;
+    copy.appendChild(p);
+  }
+  if (s.meta && s.meta.length) {
+    const p = document.createElement('p');
+    p.className = 'hero-meta';
+    s.meta.forEach((t, i) => {
+      if (i) { const dot = document.createElement('span'); dot.textContent = '\u00b7'; p.appendChild(dot); }
+      const span = document.createElement('span');
+      span.textContent = t;
+      p.appendChild(span);
+    });
+    copy.appendChild(p);
+  }
+  const ctas = document.createElement('div');
+  ctas.className = 'hero-ctas';
+  const primary = document.createElement('a');
+  primary.className = 'btn btn-primary';
+  primary.href = s.href;
+  primary.textContent = s.ctaLabel;
+  ctas.appendChild(primary);
+  const secondary = document.createElement('a');
+  secondary.className = 'btn btn-secondary';
+  secondary.href = 'movies.html';
+  secondary.textContent = 'See all films';
+  ctas.appendChild(secondary);
+  copy.appendChild(ctas);
+  slide.appendChild(copy);
+  return slide;
+}
+
+function initSlider(count){
+  const slider = el('heroSlider');
+  const slides = [...document.querySelectorAll('.hero-slide')];
+  const dotsEl = el('heroDots');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let current = 0;
+  let timer = null;
+
+  const dots = [];
+  if (count > 1) {
+    for (let i = 0; i < count; i++) {
+      const d = document.createElement('button');
+      d.type = 'button';
+      d.className = 'hero-dot';
+      d.setAttribute('aria-label', 'Show slide ' + (i + 1));
+      d.addEventListener('click', () => { show(i); start(); });
+      dotsEl.appendChild(d);
+      dots.push(d);
+    }
+  }
+
+  function show(n){
+    current = (n + count) % count;
+    slides.forEach((s, i) => {
+      const on = i === current;
+      s.classList.toggle('active', on);
+      s.setAttribute('aria-hidden', String(!on));
+      s.inert = !on;
+    });
+    dots.forEach((d, i) => d.setAttribute('aria-current', String(i === current)));
+  }
+  function stop(){ if (timer) { clearInterval(timer); timer = null; } }
+  function start(){
+    stop();
+    if (count < 2 || reduceMotion) return;
+    timer = setInterval(() => show(current + 1), 6500);
+  }
+
+  show(0);
+  start();
+  if (count < 2) return;
+
+  slider.addEventListener('mouseenter', stop);
+  slider.addEventListener('mouseleave', start);
+  slider.addEventListener('focusin', stop);
+  slider.addEventListener('focusout', start);
+
+  let touchX = null;
+  slider.addEventListener('touchstart', (e) => { touchX = e.touches[0].clientX; }, { passive: true });
+  slider.addEventListener('touchend', (e) => {
+    if (touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    touchX = null;
+    if (Math.abs(dx) > 50) { show(current + (dx < 0 ? 1 : -1)); start(); }
+  });
+}
+
+async function loadHero(){
+  let slides = [];
+
+  const { data: heroes } = await supabase
+    .from('heroes')
+    .select('*, movies(id, title, genre, language, duration_minutes, rating_code)')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: false });
+  if (heroes && heroes.length) slides = heroes.map(slideFromHero).filter(s => s.image && s.title);
+
+  // No banners yet (or the heroes table isn't set up): feature the newest movie instead.
+  if (!slides.length) {
+    const { data: latest } = await supabase.from('movies').select('*').order('created_at', { ascending: false }).limit(1);
+    if (latest && latest.length) slides = [slideFromMovie(latest[0])];
+  }
+
+  const wrap = el('heroSlides');
+  if (!slides.length) {
+    slides = [{ label: 'Cinepax', title: 'Now showing', subtitle: 'Films will appear here as soon as they are added.', meta: [], href: 'movies.html', ctaLabel: 'Browse films' }];
+  }
+  slides.forEach((s, i) => wrap.appendChild(buildSlide(s, i, slides.length)));
+  initSlider(slides.length);
+}
+
+/* ===================== CINEMAS + SHOWTIMES ===================== */
+
 async function loadCinemas(){
   const { data, error } = await supabase.from('cinemas').select('*').order('name');
   if (error || !data || data.length === 0) {
-    el('heroTitle').textContent = 'No cinemas set up yet';
-    el('heroSub').textContent = 'Add cinemas and movies from the admin dashboard to see them here.';
     el('cinemaSelect').innerHTML = '<option value="">No cinemas available</option>';
+    el('showingEmptyNote').style.display = 'block';
     return;
   }
   cinemas = data;
@@ -381,7 +468,7 @@ async function loadCinemas(){
   const defaultId = (saved && cinemas.some(c => c.id === saved)) ? saved : cinemas[0].id;
 
   el('cinemaSelect').innerHTML = cinemas.map(c =>
-    `<option value="${c.id}">${escapeHtml(c.name)} — ${escapeHtml(c.city)}</option>`
+    `<option value="${c.id}">${escapeHtml(c.name)} \u2014 ${escapeHtml(c.city)}</option>`
   ).join('');
   el('cinemaSelect').value = defaultId;
 
@@ -407,15 +494,9 @@ async function loadShowingsForCinema(cinemaId){
 
   if (error || !data || data.length === 0) {
     el('showingEmptyNote').style.display = 'block';
-    el('heroEyebrow').textContent = 'Now showing \u00b7 ' + (cinema ? cinema.name : '');
-    el('heroTitle').textContent = 'Nothing scheduled yet';
-    el('heroSub').textContent = 'Check back soon, or browse all films.';
-    el('heroMeta').textContent = '';
-    el('heroBookBtn').style.display = 'none';
     return;
   }
   el('showingEmptyNote').style.display = 'none';
-  el('heroBookBtn').style.display = 'inline-flex';
 
   // Group showtimes by movie
   const groups = new Map();
@@ -430,32 +511,15 @@ async function loadShowingsForCinema(cinemaId){
     return;
   }
 
-  // Hero = soonest showing overall
-  renderHero(cinema, groupList[0].movie, data[0]);
-
   // Film row = one card per movie playing here
   groupList.forEach(({ movie, showtimes }) => renderFilmCard(movie, showtimes, cinema));
-}
-
-function renderHero(cinema, movie, showtime){
-  el('heroEyebrow').textContent = 'Now showing \u00b7 ' + (cinema ? cinema.name : '');
-  el('heroTitle').textContent = movie.title;
-  el('heroSub').textContent = [movie.language, movie.genre].filter(Boolean).join(' \u00b7 ') +
-    (movie.synopsis ? '. ' + movie.synopsis : '');
-  el('heroMeta').innerHTML = [showtime.format, movie.duration_minutes ? movie.duration_minutes + ' min' : null, showtime.screen]
-    .filter(Boolean).map(t => `<span>${escapeHtml(t)}</span>`).join('<span>\u00b7</span>');
-  el('heroBookBtn').onclick = (e) => {
-    e.preventDefault();
-    setSeatmapHeader(movie, showtime);
-    el('seats').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
 }
 
 function setSeatmapHeader(movie, showtime){
   const when = new Date(showtime.show_time).toLocaleString('en-GB', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
   document.querySelector('.seatmap-header h3').textContent = movie.title;
   document.querySelector('.seatmap-header .meta').textContent =
-    `${when} \u00b7 ${showtime.format ? showtime.format + ' \u00b7 ' : ''}Screen ${showtime.screen || '—'}`;
+    `${when} \u00b7 ${showtime.format ? showtime.format + ' \u00b7 ' : ''}Screen ${showtime.screen || '\u2014'}`;
 }
 
 function renderFilmCard(movie, showtimes, cinema){
@@ -489,8 +553,10 @@ function renderFilmCard(movie, showtimes, cinema){
   el('filmRow').appendChild(stub);
 }
 
+loadHero();
 loadCinemas();
 </script>
 
+<script src="chat-widget.js" defer></script>
 </body>
 </html>

@@ -46,6 +46,7 @@
     <button class="tab-btn active" data-tab="movies">Movies</button>
     <button class="tab-btn" data-tab="cinemas">Cinemas</button>
     <button class="tab-btn" data-tab="showtimes">Showtimes</button>
+    <button class="tab-btn" data-tab="heroes">Hero</button>
   </div>
 
   <main>
@@ -60,7 +61,7 @@
           <label>Poster image</label>
           <input type="file" id="movieposterFile" accept="image/*">
           <div id="cropWrap" style="display:none; margin-top:10px;">
-            <p style="font-size:0.78rem; color:var(--muted); margin-bottom:6px;">Drag to reposition, pinch/scroll to zoom — it'll always crop to a clean poster ratio, never stretched.</p>
+            <p style="font-size:0.78rem; color:var(--muted); margin-bottom:6px;">Drag to reposition and use the slider to zoom — it always crops to a clean poster ratio, never stretched.</p>
             <div id="cropStage" style="position:relative; width:180px; aspect-ratio:2/3; overflow:hidden; border-radius:10px; border:1px solid var(--line); background:var(--bg-raised); touch-action:none; cursor:grab;">
               <img id="cropImg" style="position:absolute; max-width:none; user-select:none; -webkit-user-drag:none;">
             </div>
@@ -154,6 +155,71 @@
       <div id="showtimeList"></div>
       <p class="empty-note" id="showtimeEmptyNote" style="display:none;">No showtimes yet.</p>
     </section>
+
+    <section class="panel" id="panel-heroes">
+      <div class="panel-head">
+        <h2 class="display">Homepage hero</h2>
+        <button class="btn btn-primary btn-small" id="toggleHeroForm">+ Add hero</button>
+      </div>
+      <p class="empty-note" style="text-align:left; padding:0 0 16px;">Big banners at the top of the homepage. Active heroes rotate in order. With none active, the homepage features your newest movie.</p>
+
+      <div class="form-card" id="heroForm">
+        <div class="field">
+          <label for="heroMovie">Linked movie (optional)</label>
+          <select id="heroMovie"></select>
+          <p class="hint">Linked heroes show the movie's details and send "Book" to its page.</p>
+        </div>
+
+        <div class="field">
+          <label>Wide banner (16:9)</label>
+          <input type="file" id="heroImageFile" accept="image/*">
+          <div id="heroCropWrap" style="display:none; margin-top:10px;">
+            <p style="font-size:0.78rem; color:var(--muted); margin-bottom:6px;">Drag to reposition and use the slider to zoom. Shown on tablets and desktops.</p>
+            <div id="heroCropStage" style="position:relative; width:320px; max-width:100%; height:180px; overflow:hidden; border-radius:10px; border:1px solid var(--line); background:var(--bg-raised); touch-action:none; cursor:grab;">
+              <img id="heroCropImg" alt="" style="position:absolute; max-width:none; user-select:none; -webkit-user-drag:none;">
+            </div>
+            <input type="range" id="heroCropZoom" min="1" max="3" step="0.01" value="1" style="width:320px; max-width:100%; margin-top:8px;">
+          </div>
+          <img id="heroImagePreview" alt="" style="margin-top:8px; display:none; width:240px; max-width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:8px; border:1px solid var(--line);">
+        </div>
+
+        <div class="field">
+          <label>Phone image (optional, 4:5)</label>
+          <input type="file" id="heroMobileFile" accept="image/*">
+          <p class="hint">A taller crop for phones. If you skip it, phones use the wide banner.</p>
+          <div id="heroMobCropWrap" style="display:none; margin-top:10px;">
+            <div id="heroMobCropStage" style="position:relative; width:200px; height:250px; overflow:hidden; border-radius:10px; border:1px solid var(--line); background:var(--bg-raised); touch-action:none; cursor:grab;">
+              <img id="heroMobCropImg" alt="" style="position:absolute; max-width:none; user-select:none; -webkit-user-drag:none;">
+            </div>
+            <input type="range" id="heroMobCropZoom" min="1" max="3" step="0.01" value="1" style="width:200px; margin-top:8px;">
+          </div>
+          <img id="heroMobPreview" alt="" style="margin-top:8px; display:none; width:120px; aspect-ratio:4/5; object-fit:cover; border-radius:8px; border:1px solid var(--line);">
+        </div>
+
+        <div class="field-row two">
+          <div class="field"><label for="heroTitle">Headline</label><input type="text" id="heroTitle" placeholder="Leave blank to use the movie title"></div>
+          <div class="field"><label for="heroLabel">Small label</label><input type="text" id="heroLabel" placeholder="e.g. Now showing, Coming soon"></div>
+        </div>
+        <div class="field"><label for="heroSubtitle">Subtitle</label><input type="text" id="heroSubtitle" placeholder="One short line under the headline"></div>
+        <div class="field-row two">
+          <div class="field"><label for="heroCtaLabel">Button text</label><input type="text" id="heroCtaLabel" value="Book tickets"></div>
+          <div class="field"><label for="heroCtaUrl">Button link (optional)</label><input type="text" id="heroCtaUrl" placeholder="Blank = movie page, or the showtimes"></div>
+        </div>
+        <div class="field-row two">
+          <div class="field"><label for="heroOrder">Order (1 shows first)</label><input type="number" id="heroOrder" value="1" min="0"></div>
+          <div class="check-row" style="align-self:end;"><input type="checkbox" id="heroActive" checked><label for="heroActive">Show on homepage</label></div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-primary" id="saveHeroBtn">Save hero</button>
+          <button class="btn btn-secondary" id="cancelHeroBtn" type="button">Cancel</button>
+        </div>
+        <p class="error-text" id="heroFormError"></p>
+      </div>
+
+      <div id="heroList"></div>
+      <p class="empty-note" id="heroEmptyNote" style="display:none;">No heroes yet — add a banner above.</p>
+    </section>
   </main>
 </div>
 
@@ -226,7 +292,7 @@ async function enterAdmin(){
   el('loginScreen').style.display = 'none';
   el('adminScreen').classList.add('active');
   el('userEmail').textContent = currentUser.email;
-  await Promise.all([loadMovies(), loadCinemas(), loadShowtimes()]);
+  await Promise.all([loadMovies(), loadCinemas(), loadShowtimes(), loadHeroes()]);
 }
 
 (async () => {
@@ -253,116 +319,128 @@ el('toggleMovieForm').addEventListener('click', () => {
 });
 el('cancelMovieBtn').addEventListener('click', () => el('movieForm').classList.remove('open'));
 
-// ===== Poster cropper: always exports a fixed 2:3 ratio image, never stretched =====
-const CROP_RATIO = 2 / 3; // width:height — standard poster ratio
-const CROP_OUT_W = 600;
-const CROP_OUT_H = 900;
-let cropImgNatural = { w: 0, h: 0 };
-let cropState = { scale: 1, offsetX: 0, offsetY: 0, minScale: 1 };
-let croppedBlob = null;
-let dragging = false, dragStart = { x: 0, y: 0 }, dragOrigin = { x: 0, y: 0 };
+// ===== Image cropper (reusable) =====
+// Always exports a fixed-ratio JPEG, never stretched. Used for movie posters (2:3)
+// and both hero images (16:9 wide, 4:5 phone).
+function makeCropper({ fileInput, wrap, stage, img, zoom, preview, stageW, stageH, outW, outH }){
+  stage.style.width = stageW + 'px';
+  stage.style.height = stageH + 'px';
+  let natural = { w: 0, h: 0 };
+  let st = { scale: 1, x: 0, y: 0, min: 1 };
+  let blob = null;
+  let dragging = false, dragStart = { x: 0, y: 0 }, dragOrigin = { x: 0, y: 0 };
 
-const stageW = 180, stageH = 270; // matches #cropStage CSS size (180 x 180*3/2)
+  function apply(){
+    img.style.width = (natural.w * st.scale) + 'px';
+    img.style.height = (natural.h * st.scale) + 'px';
+    img.style.left = st.x + 'px';
+    img.style.top = st.y + 'px';
+  }
+  function clamp(){
+    st.x = Math.min(0, Math.max(stageW - natural.w * st.scale, st.x));
+    st.y = Math.min(0, Math.max(stageH - natural.h * st.scale, st.y));
+  }
+  function renderPreview(){
+    const canvas = document.createElement('canvas');
+    canvas.width = outW;
+    canvas.height = outH;
+    const ctx = canvas.getContext('2d');
+    // Map the visible crop window back onto the original image at full resolution
+    ctx.drawImage(img, (0 - st.x) / st.scale, (0 - st.y) / st.scale, stageW / st.scale, stageH / st.scale, 0, 0, outW, outH);
+    canvas.toBlob((b) => {
+      blob = b;
+      preview.src = URL.createObjectURL(b);
+      preview.style.display = 'block';
+    }, 'image/jpeg', 0.9);
+  }
 
-function applyCropTransform(){
-  const img = el('cropImg');
-  const w = cropImgNatural.w * cropState.scale;
-  const h = cropImgNatural.h * cropState.scale;
-  img.style.width = w + 'px';
-  img.style.height = h + 'px';
-  img.style.left = cropState.offsetX + 'px';
-  img.style.top = cropState.offsetY + 'px';
-}
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    img.onload = () => {
+      natural = { w: img.naturalWidth, h: img.naturalHeight };
+      // Minimum scale so the image always fully covers the stage (no gaps, no stretching)
+      st.min = Math.max(stageW / natural.w, stageH / natural.h);
+      st.scale = st.min;
+      st.x = (stageW - natural.w * st.scale) / 2;
+      st.y = (stageH - natural.h * st.scale) / 2;
+      zoom.min = st.min;
+      zoom.max = st.min * 3;
+      zoom.step = (st.min * 2) / 100;
+      zoom.value = st.min;
+      apply();
+      wrap.style.display = 'block';
+      renderPreview();
+    };
+    img.src = URL.createObjectURL(file);
+  });
 
-function clampOffset(){
-  const w = cropImgNatural.w * cropState.scale;
-  const h = cropImgNatural.h * cropState.scale;
-  cropState.offsetX = Math.min(0, Math.max(stageW - w, cropState.offsetX));
-  cropState.offsetY = Math.min(0, Math.max(stageH - h, cropState.offsetY));
-}
+  zoom.addEventListener('input', () => {
+    st.scale = parseFloat(zoom.value);
+    clamp(); apply(); renderPreview();
+  });
 
-el('movieposterFile').addEventListener('change', () => {
-  const file = el('movieposterFile').files[0];
-  if (!file) return;
-  const url = URL.createObjectURL(file);
-  const img = el('cropImg');
-  img.onload = () => {
-    cropImgNatural = { w: img.naturalWidth, h: img.naturalHeight };
-    // Minimum scale so the image always fully covers the crop stage (no gaps, no stretching)
-    cropState.minScale = Math.max(stageW / cropImgNatural.w, stageH / cropImgNatural.h);
-    cropState.scale = cropState.minScale;
-    cropState.offsetX = (stageW - cropImgNatural.w * cropState.scale) / 2;
-    cropState.offsetY = (stageH - cropImgNatural.h * cropState.scale) / 2;
-    el('cropZoom').min = cropState.minScale;
-    el('cropZoom').max = cropState.minScale * 3;
-    el('cropZoom').step = (cropState.minScale * 2) / 100;
-    el('cropZoom').value = cropState.minScale;
-    applyCropTransform();
-    el('cropWrap').style.display = 'block';
-    updateCroppedPreview();
+  function startDrag(x, y){ dragging = true; dragStart = { x, y }; dragOrigin = { x: st.x, y: st.y }; stage.style.cursor = 'grabbing'; }
+  function moveDrag(x, y){
+    if (!dragging) return;
+    st.x = dragOrigin.x + (x - dragStart.x);
+    st.y = dragOrigin.y + (y - dragStart.y);
+    clamp(); apply();
+  }
+  function endDrag(){
+    if (!dragging) return;
+    dragging = false;
+    stage.style.cursor = 'grab';
+    renderPreview();
+  }
+  stage.addEventListener('mousedown', (e) => startDrag(e.clientX, e.clientY));
+  window.addEventListener('mousemove', (e) => moveDrag(e.clientX, e.clientY));
+  window.addEventListener('mouseup', endDrag);
+  stage.addEventListener('touchstart', (e) => { const t = e.touches[0]; startDrag(t.clientX, t.clientY); }, { passive: true });
+  stage.addEventListener('touchmove', (e) => { const t = e.touches[0]; moveDrag(t.clientX, t.clientY); }, { passive: true });
+  stage.addEventListener('touchend', endDrag);
+
+  return {
+    getBlob: () => blob,
+    reset(){
+      fileInput.value = '';
+      wrap.style.display = 'none';
+      preview.style.display = 'none';
+      blob = null;
+    },
+    showExisting(url){
+      if (url) { preview.src = url; preview.style.display = 'block'; }
+    }
   };
-  img.src = url;
+}
+
+const posterCropper = makeCropper({
+  fileInput: el('movieposterFile'), wrap: el('cropWrap'), stage: el('cropStage'), img: el('cropImg'),
+  zoom: el('cropZoom'), preview: el('moviePosterPreview'),
+  stageW: 180, stageH: 270, outW: 600, outH: 900
+});
+const heroWideCropper = makeCropper({
+  fileInput: el('heroImageFile'), wrap: el('heroCropWrap'), stage: el('heroCropStage'), img: el('heroCropImg'),
+  zoom: el('heroCropZoom'), preview: el('heroImagePreview'),
+  stageW: 320, stageH: 180, outW: 1600, outH: 900
+});
+const heroMobileCropper = makeCropper({
+  fileInput: el('heroMobileFile'), wrap: el('heroMobCropWrap'), stage: el('heroMobCropStage'), img: el('heroMobCropImg'),
+  zoom: el('heroMobCropZoom'), preview: el('heroMobPreview'),
+  stageW: 200, stageH: 250, outW: 1000, outH: 1250
 });
 
-el('cropZoom').addEventListener('input', () => {
-  cropState.scale = parseFloat(el('cropZoom').value);
-  clampOffset();
-  applyCropTransform();
-  updateCroppedPreview();
-});
-
-function startDrag(x, y){
-  dragging = true;
-  dragStart = { x, y };
-  dragOrigin = { x: cropState.offsetX, y: cropState.offsetY };
-  el('cropStage').style.cursor = 'grabbing';
-}
-function moveDrag(x, y){
-  if (!dragging) return;
-  cropState.offsetX = dragOrigin.x + (x - dragStart.x);
-  cropState.offsetY = dragOrigin.y + (y - dragStart.y);
-  clampOffset();
-  applyCropTransform();
-}
-function endDrag(){
-  if (!dragging) return;
-  dragging = false;
-  el('cropStage').style.cursor = 'grab';
-  updateCroppedPreview();
-}
-el('cropStage').addEventListener('mousedown', (e) => startDrag(e.clientX, e.clientY));
-window.addEventListener('mousemove', (e) => moveDrag(e.clientX, e.clientY));
-window.addEventListener('mouseup', endDrag);
-el('cropStage').addEventListener('touchstart', (e) => { const t = e.touches[0]; startDrag(t.clientX, t.clientY); }, { passive: true });
-el('cropStage').addEventListener('touchmove', (e) => { const t = e.touches[0]; moveDrag(t.clientX, t.clientY); }, { passive: true });
-el('cropStage').addEventListener('touchend', endDrag);
-
-function updateCroppedPreview(){
-  const canvas = document.createElement('canvas');
-  canvas.width = CROP_OUT_W;
-  canvas.height = CROP_OUT_H;
-  const ctx = canvas.getContext('2d');
-  const img = el('cropImg');
-  // Map the visible crop-stage window back onto the original image at full resolution
-  const sx = (0 - cropState.offsetX) / cropState.scale;
-  const sy = (0 - cropState.offsetY) / cropState.scale;
-  const sw = stageW / cropState.scale;
-  const sh = stageH / cropState.scale;
-  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, CROP_OUT_W, CROP_OUT_H);
-  canvas.toBlob((blob) => {
-    croppedBlob = blob;
-    el('moviePosterPreview').src = URL.createObjectURL(blob);
-    el('moviePosterPreview').style.display = 'block';
-  }, 'image/jpeg', 0.9);
+async function uploadToPosters(blob, folder){
+  const path = `${folder ? folder + '/' : ''}${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
+  const { error } = await supabase.storage.from('posters').upload(path, blob, { contentType: 'image/jpeg' });
+  if (error) throw error;
+  return supabase.storage.from('posters').getPublicUrl(path).data.publicUrl;
 }
 
 function clearMovieForm(){
   ['movieTitle','movieGenre','movieLanguage','movieDuration','movieRatingCode','movieTrailer','movieSynopsis'].forEach(id => el(id).value = '');
   el('movieRatingCountry').value = 'PK';
-  el('movieposterFile').value = '';
-  el('moviePosterPreview').style.display = 'none';
-  el('cropWrap').style.display = 'none';
-  croppedBlob = null;
+  posterCropper.reset();
   el('movieFormError').textContent = '';
 }
 
@@ -372,6 +450,7 @@ async function loadMovies(){
   allMovies = data || [];
   renderMovieGrid();
   populateMovieSelect();
+  populateHeroMovieSelect();
 }
 
 function renderMovieGrid(){
@@ -399,6 +478,7 @@ el('saveMovieBtn').addEventListener('click', async () => {
   el('saveMovieBtn').disabled = true;
 
   let posterUrl = editingMovieId ? (allMovies.find(m => m.id === editingMovieId)?.poster_url || null) : null;
+  const croppedBlob = posterCropper.getBlob();
   if (croppedBlob) {
     const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
     const { error: upErr } = await supabase.storage.from('posters').upload(path, croppedBlob, { contentType: 'image/jpeg' });
@@ -444,6 +524,7 @@ function openMovieModal(m){
   else { el('modalPoster').style.display = 'none'; }
 
   el('modalEditBtn').onclick = () => {
+    posterCropper.reset();
     editingMovieId = m.id;
     el('movieTitle').value = m.title || '';
     el('movieGenre').value = m.genre || '';
@@ -574,6 +655,173 @@ el('saveShowtimeBtn').addEventListener('click', async () => {
   showToast('Showtime added');
   el('showtimeForm').classList.remove('open');
   loadShowtimes();
+});
+
+
+// ===== Heroes =====
+let allHeroes = [];
+let editingHeroId = null;
+
+function populateHeroMovieSelect(){
+  const keep = el('heroMovie').value;
+  el('heroMovie').innerHTML = '<option value="">None (custom banner)</option>' +
+    allMovies.map(m => `<option value="${m.id}">${escapeHtml(m.title)}</option>`).join('');
+  el('heroMovie').value = keep;
+}
+
+function clearHeroForm(){
+  editingHeroId = null;
+  ['heroTitle','heroLabel','heroSubtitle','heroCtaUrl'].forEach(id => el(id).value = '');
+  el('heroMovie').value = '';
+  el('heroCtaLabel').value = 'Book tickets';
+  el('heroOrder').value = allHeroes.length ? Math.max(...allHeroes.map(h => h.sort_order || 0)) + 1 : 1;
+  el('heroActive').checked = true;
+  el('heroFormError').textContent = '';
+  heroWideCropper.reset();
+  heroMobileCropper.reset();
+}
+
+el('toggleHeroForm').addEventListener('click', () => {
+  const opening = !el('heroForm').classList.contains('open');
+  if (opening) clearHeroForm();
+  el('heroForm').classList.toggle('open');
+});
+el('cancelHeroBtn').addEventListener('click', () => { el('heroForm').classList.remove('open'); clearHeroForm(); });
+
+async function loadHeroes(){
+  const { data, error } = await supabase
+    .from('heroes')
+    .select('*, movies(title)')
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: false });
+  const listEl = el('heroList');
+  listEl.innerHTML = '';
+  if (error) {
+    el('heroEmptyNote').style.display = 'block';
+    el('heroEmptyNote').textContent = 'Could not load heroes (' + error.message + '). Has the heroes table been created in Supabase?';
+    return;
+  }
+  el('heroEmptyNote').textContent = 'No heroes yet — add a banner above.';
+  allHeroes = data || [];
+  el('heroEmptyNote').style.display = allHeroes.length ? 'none' : 'block';
+
+  allHeroes.forEach(h => {
+    const row = document.createElement('div');
+    row.className = 'list-row';
+
+    const main = document.createElement('div');
+    main.className = 'rowmain';
+    const thumb = document.createElement('img');
+    thumb.className = 'hero-thumb';
+    thumb.src = h.image_url;
+    thumb.alt = '';
+    main.appendChild(thumb);
+
+    const text = document.createElement('div');
+    text.className = 'rowtext';
+    const t = document.createElement('div');
+    t.className = 'rt-title';
+    t.textContent = h.title || h.movies?.title || 'Untitled hero';
+    const sub = document.createElement('div');
+    sub.className = 'rt-sub';
+    const status = document.createElement('span');
+    status.className = 'badge' + (h.is_active ? ' on' : '');
+    status.textContent = h.is_active ? 'Live' : 'Hidden';
+    sub.appendChild(status);
+    sub.appendChild(document.createTextNode(`#${h.sort_order ?? 0}` + (h.movies?.title ? ` \u00b7 ${h.movies.title}` : '') + (h.mobile_image_url ? ' \u00b7 phone image' : '')));
+    text.appendChild(t);
+    text.appendChild(sub);
+    main.appendChild(text);
+    row.appendChild(main);
+
+    const btns = document.createElement('div');
+    btns.className = 'rowbtns';
+    const mk = (label, cls, fn) => {
+      const b = document.createElement('button');
+      b.className = 'btn ' + cls + ' btn-small';
+      b.textContent = label;
+      b.addEventListener('click', fn);
+      btns.appendChild(b);
+    };
+    mk('Edit', 'btn-secondary', () => editHero(h));
+    mk(h.is_active ? 'Hide' : 'Show', 'btn-secondary', async () => {
+      const { error: e } = await supabase.from('heroes').update({ is_active: !h.is_active }).eq('id', h.id);
+      if (e) { showToast('Update failed'); return; }
+      loadHeroes();
+    });
+    mk('Delete', 'btn-danger', async () => {
+      if (!confirm('Delete this hero? This can\'t be undone.')) return;
+      const { error: e } = await supabase.from('heroes').delete().eq('id', h.id);
+      if (e) { showToast('Delete failed'); return; }
+      showToast('Hero deleted');
+      loadHeroes();
+    });
+    row.appendChild(btns);
+    listEl.appendChild(row);
+  });
+}
+
+function editHero(h){
+  clearHeroForm();
+  editingHeroId = h.id;
+  el('heroMovie').value = h.movie_id || '';
+  el('heroTitle').value = h.title || '';
+  el('heroLabel').value = h.label || '';
+  el('heroSubtitle').value = h.subtitle || '';
+  el('heroCtaLabel').value = h.cta_label || 'Book tickets';
+  el('heroCtaUrl').value = h.cta_url || '';
+  el('heroOrder').value = h.sort_order ?? 0;
+  el('heroActive').checked = !!h.is_active;
+  heroWideCropper.showExisting(h.image_url);
+  heroMobileCropper.showExisting(h.mobile_image_url);
+  el('heroForm').classList.add('open');
+  el('heroForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+el('saveHeroBtn').addEventListener('click', async () => {
+  el('heroFormError').textContent = '';
+  const existing = editingHeroId ? allHeroes.find(h => h.id === editingHeroId) : null;
+  const wideBlob = heroWideCropper.getBlob();
+  const mobBlob = heroMobileCropper.getBlob();
+  const movieId = el('heroMovie').value || null;
+  const title = el('heroTitle').value.trim();
+
+  if (!existing && !wideBlob) { el('heroFormError').textContent = 'Please add a wide banner image.'; return; }
+  if (!movieId && !title) { el('heroFormError').textContent = 'Link a movie or type a headline.'; return; }
+
+  el('saveHeroBtn').disabled = true;
+  try {
+    let imageUrl = existing?.image_url || null;
+    let mobileUrl = existing?.mobile_image_url || null;
+    if (wideBlob) imageUrl = await uploadToPosters(wideBlob, 'heroes');
+    if (mobBlob) mobileUrl = await uploadToPosters(mobBlob, 'heroes');
+
+    const payload = {
+      movie_id: movieId,
+      title: title || null,
+      label: el('heroLabel').value.trim() || null,
+      subtitle: el('heroSubtitle').value.trim() || null,
+      cta_label: el('heroCtaLabel').value.trim() || 'Book tickets',
+      cta_url: el('heroCtaUrl').value.trim() || null,
+      sort_order: parseInt(el('heroOrder').value) || 0,
+      is_active: el('heroActive').checked,
+      image_url: imageUrl,
+      mobile_image_url: mobileUrl
+    };
+    const { error } = editingHeroId
+      ? await supabase.from('heroes').update(payload).eq('id', editingHeroId)
+      : await supabase.from('heroes').insert(payload);
+    if (error) throw error;
+
+    showToast(editingHeroId ? 'Hero updated' : 'Hero added');
+    el('heroForm').classList.remove('open');
+    clearHeroForm();
+    loadHeroes();
+  } catch (err) {
+    el('heroFormError').textContent = err.message || 'Something went wrong.';
+  } finally {
+    el('saveHeroBtn').disabled = false;
+  }
 });
 
 function escapeHtml(str){
