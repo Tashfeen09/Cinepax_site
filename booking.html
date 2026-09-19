@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0f0b16">
+<title>Book Tickets — Cinepax</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Libre+Franklin:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  /* Booking-specific layout */
+  .booking-header {
+    padding: 20px;
+    background: var(--bg-raised);
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 56px;
+    z-index: 50;
+  }
+
+  .booking-header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .booking-timer {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--marigold-bright);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .booking-timer svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .booking-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 20px;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+  }
+
+  @media (max-width: 768px) {
+    .booking-main {
+      grid-template-columns: 1fr;
+    }
+    .booking-header-inner {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  .seatmap-wrap {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 24px;
+  }
+
+  .seatmap-info {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .seatmap-info h1 {
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    margin-bottom: 8px;
+  }
+
+  .seatmap-info .meta {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .screen-label {
+    width: 100%;
+    text-align: center;
+    padding: 16px 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--teal);
+    margin-bottom: 24px;
+  }
+
+  .seat-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .seat-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .row-label {
+    min-width: 28px;
+    text-align: right;
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .aisle {
+    min-width: 16px;
+  }
+
+  .seat {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    border: 1.5px solid var(--line);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    color: transparent;
+  }
+
+  .seat:not(.taken):hover {
+    border-color: var(--marigold-bright);
+    background: rgba(224, 168, 64, 0.1);
+  }
+
+  .seat.taken {
+    background: var(--seat-taken);
+    border-color: rgba(224, 168, 64, 0);
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .seat.gold {
+    border-color: rgba(224, 168, 64, 0.5);
+  }
+
+  .seat.gold:not(.taken):hover {
+    background: rgba(224, 168, 64, 0.15);
+  }
+
+  .seat.selected {
+    background: var(--magenta-bright);
+    border-color: var(--magenta-bright);
+    color: var(--cream);
+    font-weight: 600;
+  }
+
+  .seat-legend {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    padding: 16px;
+    background: rgba(224, 168, 64, 0.05);
+    border-radius: 6px;
+    margin-bottom: 24px;
+  }
+
+  .seat-legend span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+  }
+
+  .legend-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* Sidebar */
+  .booking-sidebar {
+    position: sticky;
+    top: 150px;
+    height: fit-content;
+  }
+
+  .booking-card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .booking-card h3 {
+    font-size: 0.9rem;
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--marigold-bright);
+    margin-bottom: 16px;
+  }
+
+  .seat-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .seat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .seat-item:last-child {
+    border-bottom: none;
+  }
+
+  .seat-item-label {
+    color: var(--muted);
+  }
+
+  .seat-item-price {
+    font-weight: 600;
+    color: var(--marigold-bright);
+  }
+
+  .price-section {
+    padding: 16px 0;
+    border-top: 1px solid var(--line);
+    margin-top: 16px;
+  }
+
+  .price-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+  }
+
+  .price-row.total {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--marigold-bright);
+    margin-top: 12px;
+  }
+
+  .promo-input {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .promo-input input {
+    flex: 1;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 8px 12px;
+    color: var(--cream);
+    font-size: 0.85rem;
+  }
+
+  .promo-input input::placeholder {
+    color: var(--muted);
+  }
+
+  .promo-input button {
+    background: transparent;
+    border: 1px solid var(--teal-bright);
+    color: var(--teal-bright);
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .promo-input button:hover {
+    background: rgba(95, 163, 175, 0.1);
+  }
+
+  .checkout-btn {
+    width: 100%;
+    padding: 12px 16px;
+    margin-top: 16px;
+    font-size: 0.95rem;
+  }
+
+  .checkout-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .no-seats-message {
+    text-align: center;
+    color: var(--muted);
+    padding: 20px;
+    font-size: 0.9rem;
+  }
+
+  .loading-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
+
+  .error-message {
+    background: rgba(177, 63, 63, 0.1);
+    border: 1px solid rgba(177, 63, 63, 0.3);
+    color: #ff8a8a;
+    padding: 16px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+  }
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<header>
+  <div class="nav-bar">
+    <a href="index.html" class="brand" aria-label="Cinepax home"><span class="name">CINEPAX</span></a>
+    <a href="movie.html" class="back-link" id="backLink">← Back</a>
+  </div>
+</header>
+
+<div class="booking-header" id="bookingTimer" style="display:none;">
+  <div class="booking-header-inner">
+    <span id="timerText" class="booking-timer">
+      <svg viewBox="0 0 24 24"><path d="M11 17c0 .55.45 1 1 1s1-.45 1-1-.45-1-1-1-1 .45-1 1zm6-9h-5V2h-2v6H5c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1V9c0-.55-.45-1-1-1zm0 10H5V9h12v8z"></path></svg>
+      <span id="timer">15:00</span> left to complete your booking
+    </span>
+  </div>
+</div>
+
+<main id="main" class="booking-main" style="display:none;">
+  <div class="seatmap-wrap">
+    <div class="seatmap-info" id="seatmapInfo"></div>
+    
+    <div class="screen-label">SCREEN</div>
+    
+    <div id="seatGridContainer" class="seat-grid"></div>
+
+    <div class="seat-legend">
+      <span>
+        <span class="legend-dot" style="background:var(--bg-raised); border:1px solid var(--line);"></span>
+        <span>Silver — Rs <span id="silverPrice">650</span></span>
+      </span>
+      <span>
+        <span class="legend-dot" style="background:var(--bg-raised); border:1px solid rgba(224,168,64,0.5);"></span>
+        <span>Gold — Rs <span id="goldPrice">900</span></span>
+      </span>
+      <span>
+        <span class="legend-dot" style="background:var(--magenta-bright);"></span>
+        <span>Selected</span>
+      </span>
+      <span>
+        <span class="legend-dot" style="background:var(--seat-taken);"></span>
+        <span>Taken</span>
+      </span>
+    </div>
+  </div>
+
+  <aside class="booking-sidebar">
+    <div class="booking-card">
+      <h3>Your Selection</h3>
+      <div id="seatSummary" class="seat-summary">
+        <div class="no-seats-message">No seats selected yet</div>
+      </div>
+
+      <div class="price-section">
+        <div class="price-row">
+          <span>Subtotal</span>
+          <span id="subtotal">Rs 0</span>
+        </div>
+        <div class="price-row">
+          <span>GST (17%)</span>
+          <span id="gst">Rs 0</span>
+        </div>
+        <div class="price-row total">
+          <span>Total</span>
+          <span id="total">Rs 0</span>
+        </div>
+      </div>
+
+      <div class="promo-input">
+        <input type="text" id="promoCode" placeholder="Promo code (optional)" maxlength="20">
+        <button id="promoBtn">Apply</button>
+      </div>
+
+      <button class="btn btn-primary checkout-btn" id="checkoutBtn" disabled>
+        Continue to Pay
+      </button>
+    </div>
+
+    <div class="booking-card" style="background: rgba(224, 168, 64, 0.05); border-color: rgba(224, 168, 64, 0.2);">
+      <h3 style="color: var(--marigold);">💡 Pro Tip</h3>
+      <p style="font-size: 0.85rem; line-height: 1.4;">Gold seats offer reclining comfort and better sightlines. Perfect for a premium experience — only Rs 250 more per seat.</p>
+    </div>
+  </aside>
+</main>
+
+<div id="loadingState" style="max-width: 1200px; margin: 60px auto; padding: 20px;">
+  <p class="loading-message">Loading showtime details...</p>
+</div>
+
+<div id="errorState" style="max-width: 1200px; margin: 60px auto; padding: 20px;">
+  <div class="error-message" id="errorMessage"></div>
+  <div style="text-align: center;">
+    <a href="index.html" class="btn btn-primary">← Back to home</a>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const SUPABASE_URL = 'https://jonmnpnxtqavsrrjglet.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impvbm1ucG54dHFhdnNycmpnbGV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyMDc3MzcsImV4cCI6MjEwMTc4MzczN30.z36lYdzrTEbFyisYmj1LNqAIqHH28pKNhuI1WOLpaJQ';
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const BOOKING_TIMEOUT = 15 * 60 * 1000; // 15 minutes
+const SEAT_ROWS = 8; // A-H
+const SEATS_PER_ROW = 8;
+
+let selectedSeats = new Set();
+let showtimeData = null;
+let bookingId = null;
+
+const params = new URLSearchParams(location.search);
+const showtimeId = params.get('st'); // Showtime ID
+
+async function init() {
+  if (!showtimeId) {
+    showError('No showtime selected. Please choose a showtime first.');
+    return;
+  }
+
+  try {
+    await loadShowtimeData();
+    await loadSeatAvailability();
+    renderSeatMap();
+    setupTimer();
+    setupEventListeners();
+    
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorState').style.display = 'none';
+    document.querySelector('main.booking-main').style.display = 'grid';
+    document.getElementById('bookingTimer').style.display = 'block';
+  } catch (err) {
+    console.error('Init error:', err);
+    showError('Failed to load booking details. Please try again.');
+  }
+}
+
+async function loadShowtimeData() {
+  const { data, error } = await supabase
+    .from('showtimes')
+    .select('*, movies(*), cinemas(*)')
+    .eq('id', showtimeId)
+    .maybeSingle();
+
+  if (error || !data) {
+    throw new Error('Showtime not found');
+  }
+
+  showtimeData = data;
+
+  // Render showtime info in sidebar
+  const when = new Date(data.show_time).toLocaleString('en-GB', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  document.getElementById('seatmapInfo').innerHTML = `
+    <h1>${escapeHtml(data.movies?.title || 'Film')}</h1>
+    <p class="meta">
+      ${escapeHtml(data.cinemas?.name || 'Cinema')} · ${escapeHtml(data.cinemas?.city || '')} · Screen ${data.screen || '?'}<br>
+      ${when}
+    </p>
+  `;
+
+  document.getElementById('silverPrice').textContent = data.price_silver;
+  document.getElementById('goldPrice').textContent = data.price_gold;
+
+  // Set back link
+  const movieId = data.movie_id;
+  document.getElementById('backLink').href = `movie.html?id=${movieId}`;
+
+  return showtimeData;
+}
+
+async function loadSeatAvailability() {
+  // For now, generate a mock seat map. In production, fetch from a bookings table.
+  // Create a persistent booking session
+  const bookingPayload = {
+    showtime_id: showtimeId,
+    created_at: new Date().toISOString(),
+    expires_at: new Date(Date.now() + BOOKING_TIMEOUT).toISOString()
+  };
+
+  const { data, error } = await supabase
+    .from('bookings')
+    .insert([bookingPayload])
+    .select('id')
+    .single();
+
+  if (!error && data) {
+    bookingId = data.id;
+  }
+
+  // Generate mock seat data: mostly available, some taken
+  const seats = new Map();
+  const takenSeats = new Set(['B2', 'B7', 'D4']); // Mock taken seats
+
+  for (let row = 0; row < SEAT_ROWS; row++) {
+    for (let col = 0; col < SEATS_PER_ROW; col++) {
+      const rowLabel = String.fromCharCode(65 + row);
+      const seatNum = col + 1;
+      const seatId = `${rowLabel}${seatNum}`;
+      
+      const isTaken = takenSeats.has(seatId);
+      const isGold = row >= 2 && row <= 3; // Rows C & D are gold
+
+      seats.set(seatId, {
+        row: rowLabel,
+        number: seatNum,
+        taken: isTaken,
+        type: isGold ? 'gold' : 'silver',
+        price: isGold ? showtimeData.price_gold : showtimeData.price_silver
+      });
+    }
+  }
+
+  return seats;
+}
+
+function renderSeatMap() {
+  const container = document.getElementById('seatGridContainer');
+  container.innerHTML = '';
+
+  const seatRows = new Map();
+
+  // Generate seats grouped by row
+  for (let row = 0; row < SEAT_ROWS; row++) {
+    const rowLabel = String.fromCharCode(65 + row);
+    seatRows.set(rowLabel, []);
+
+    for (let col = 0; col < SEATS_PER_ROW; col++) {
+      const seatNum = col + 1;
+      const seatId = `${rowLabel}${seatNum}`;
+
+      const takenSeats = new Set(['B2', 'B7', 'D4']);
+      const isTaken = takenSeats.has(seatId);
+      const isGold = row >= 2 && row <= 3;
+
+      const seatBtn = document.createElement('button');
+      seatBtn.className = 'seat';
+      seatBtn.dataset.seat = seatId;
+      seatBtn.dataset.price = isGold ? showtimeData.price_gold : showtimeData.price_silver;
+      seatBtn.dataset.type = isGold ? 'gold' : 'silver';
+      
+      if (isTaken) {
+        seatBtn.classList.add('taken');
+        seatBtn.disabled = true;
+        seatBtn.setAttribute('aria-label', `Seat ${seatId}, taken`);
+      } else {
+        if (isGold) seatBtn.classList.add('gold');
+        seatBtn.setAttribute('aria-label', `Seat ${seatId}`);
+        seatBtn.addEventListener('click', toggleSeat);
+      }
+
+      seatBtn.textContent = seatNum;
+      seatRows.get(rowLabel).push(seatBtn);
+    }
+  }
+
+  // Render rows with labels and aisles
+  seatRows.forEach((seats, rowLabel) => {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'seat-row';
+
+    const label = document.createElement('span');
+    label.className = 'row-label';
+    label.textContent = rowLabel;
+    rowEl.appendChild(label);
+
+    // Left side of aisle
+    for (let i = 0; i < 4; i++) {
+      rowEl.appendChild(seats[i]);
+    }
+
+    // Aisle
+    const aisle = document.createElement('span');
+    aisle.className = 'aisle';
+    rowEl.appendChild(aisle);
+
+    // Right side of aisle
+    for (let i = 4; i < 8; i++) {
+      rowEl.appendChild(seats[i]);
+    }
+
+    container.appendChild(rowEl);
+  });
+}
+
+function toggleSeat(e) {
+  const seatId = e.target.dataset.seat;
+  
+  if (selectedSeats.has(seatId)) {
+    selectedSeats.delete(seatId);
+    e.target.classList.remove('selected');
+  } else {
+    selectedSeats.add(seatId);
+    e.target.classList.add('selected');
+  }
+
+  updateSummary();
+}
+
+function updateSummary() {
+  const summaryEl = document.getElementById('seatSummary');
+
+  if (selectedSeats.size === 0) {
+    summaryEl.innerHTML = '<div class="no-seats-message">No seats selected yet</div>';
+    document.getElementById('checkoutBtn').disabled = true;
+    updatePricing();
+    return;
+  }
+
+  let html = '';
+  let subtotal = 0;
+
+  const seatElements = Array.from(document.querySelectorAll('.seat.selected')).sort((a, b) => {
+    const seatA = a.dataset.seat;
+    const seatB = b.dataset.seat;
+    if (seatA[0] !== seatB[0]) return seatA[0].localeCompare(seatB[0]);
+    return parseInt(seatA.slice(1)) - parseInt(seatB.slice(1));
+  });
+
+  seatElements.forEach(el => {
+    const seatId = el.dataset.seat;
+    const price = parseInt(el.dataset.price);
+    const type = el.dataset.type;
+    
+    html += `
+      <div class="seat-item">
+        <span class="seat-item-label">${seatId} <span style="color: var(--muted); font-size: 0.75rem;">(${type})</span></span>
+        <span class="seat-item-price">Rs ${price}</span>
+      </div>
+    `;
+    subtotal += price;
+  });
+
+  summaryEl.innerHTML = html;
+  document.getElementById('checkoutBtn').disabled = false;
+
+  // Update pricing
+  const gst = Math.round(subtotal * 0.17);
+  const total = subtotal + gst;
+
+  document.getElementById('subtotal').textContent = `Rs ${subtotal.toLocaleString()}`;
+  document.getElementById('gst').textContent = `Rs ${gst.toLocaleString()}`;
+  document.getElementById('total').textContent = `Rs ${total.toLocaleString()}`;
+}
+
+function setupEventListeners() {
+  document.getElementById('checkoutBtn').addEventListener('click', () => {
+    const seatsArray = Array.from(selectedSeats);
+    const summary = {
+      showtimeId,
+      seats: seatsArray,
+      total: document.getElementById('total').textContent
+    };
+    
+    // Store booking summary for payment page
+    sessionStorage.setItem('bookingSummary', JSON.stringify(summary));
+    
+    // In production, redirect to payment gateway
+    // For now, show a confirmation
+    alert(`Booking ${seatsArray.join(', ')} - ${summary.total}\n\nPayment integration coming soon.`);
+  });
+
+  document.getElementById('promoBtn').addEventListener('click', () => {
+    const code = document.getElementById('promoCode').value.trim().toUpperCase();
+    if (code) {
+      // TODO: Validate promo code against database
+      alert(`Promo code "${code}" applied! (Demo - actual validation coming soon)`);
+    }
+  });
+
+  document.getElementById('promoCode').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      document.getElementById('promoBtn').click();
+    }
+  });
+}
+
+function setupTimer() {
+  const endTime = Date.now() + BOOKING_TIMEOUT;
+
+  const updateTimer = () => {
+    const remaining = endTime - Date.now();
+    
+    if (remaining <= 0) {
+      // Booking expired
+      document.getElementById('bookingTimer').style.display = 'none';
+      showError('Your booking session has expired. Please select a showtime again.');
+      document.querySelector('main.booking-main').style.display = 'none';
+      return;
+    }
+
+    const minutes = Math.floor(remaining / 60000);
+    const seconds = Math.floor((remaining % 60000) / 1000);
+    
+    document.getElementById('timer').textContent = 
+      `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  };
+
+  updateTimer();
+  const interval = setInterval(updateTimer, 1000);
+
+  // Cleanup on page unload
+  window.addEventListener('beforeunload', () => clearInterval(interval));
+}
+
+function showError(message) {
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('errorState').style.display = 'block';
+  document.getElementById('errorMessage').textContent = message;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str ?? '';
+  return div.innerHTML;
+}
+
+// Initialize on load
+init();
+</script>
+
+<script src="chat-widget.js" defer></script>
+</body>
+</html>
