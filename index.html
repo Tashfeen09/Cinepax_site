@@ -456,34 +456,20 @@ async function loadHero(){
 
 /* ===================== CINEMAS + SHOWTIMES ===================== */
 
-// Cinemas that have at least one upcoming showtime (filled in by loadCinemas)
-let liveCinemaIds = new Set();
-
 async function loadCinemas(){
   const { data, error } = await supabase.from('cinemas').select('*').order('name');
   if (error || !data || data.length === 0) {
     el('cinemaSelect').innerHTML = '<option value="">No cinemas available</option>';
-    el('showingEmptyNote').textContent = 'No cinemas have been added yet.';
     el('showingEmptyNote').style.display = 'block';
     return;
   }
   cinemas = data;
-
-  // Which cinemas have anything coming up? Lets us avoid landing on an empty one.
-  const { data: upcoming } = await supabase.from('showtimes').select('cinema_id').gte('show_time', new Date().toISOString());
-  liveCinemaIds = new Set((upcoming || []).map(s => s.cinema_id));
-
   const saved = localStorage.getItem('cinepaxCinemaId');
-  let defaultId = (saved && cinemas.some(c => c.id === saved)) ? saved : cinemas[0].id;
-  if (liveCinemaIds.size && !liveCinemaIds.has(defaultId)) {
-    const firstLive = cinemas.find(c => liveCinemaIds.has(c.id));
-    if (firstLive) defaultId = firstLive.id;
-  }
+  const defaultId = (saved && cinemas.some(c => c.id === saved)) ? saved : cinemas[0].id;
 
-  el('cinemaSelect').innerHTML = cinemas.map(c => {
-    const quiet = liveCinemaIds.size && !liveCinemaIds.has(c.id) ? ' (no upcoming shows)' : '';
-    return `<option value="${c.id}">${escapeHtml(c.name)} \u2014 ${escapeHtml(c.city)}${quiet}</option>`;
-  }).join('');
+  el('cinemaSelect').innerHTML = cinemas.map(c =>
+    `<option value="${c.id}">${escapeHtml(c.name)} \u2014 ${escapeHtml(c.city)}</option>`
+  ).join('');
   el('cinemaSelect').value = defaultId;
 
   el('cinemaSelect').addEventListener('change', () => {
@@ -492,14 +478,6 @@ async function loadCinemas(){
   });
 
   loadShowingsForCinema(defaultId);
-}
-
-function showEmptyShowings(cinemaId){
-  const others = [...liveCinemaIds].some(id => id !== cinemaId);
-  el('showingEmptyNote').textContent = others
-    ? 'No upcoming showtimes at this cinema \u2014 pick another cinema above to see what\'s on.'
-    : 'No upcoming showtimes scheduled yet \u2014 check back soon.';
-  el('showingEmptyNote').style.display = 'block';
 }
 
 async function loadShowingsForCinema(cinemaId){
@@ -515,7 +493,7 @@ async function loadShowingsForCinema(cinemaId){
   filmRow.innerHTML = '';
 
   if (error || !data || data.length === 0) {
-    showEmptyShowings(cinemaId);
+    el('showingEmptyNote').style.display = 'block';
     return;
   }
   el('showingEmptyNote').style.display = 'none';
@@ -529,7 +507,7 @@ async function loadShowingsForCinema(cinemaId){
   });
   const groupList = [...groups.values()];
   if (groupList.length === 0) {
-    showEmptyShowings(cinemaId);
+    el('showingEmptyNote').style.display = 'block';
     return;
   }
 
@@ -561,14 +539,11 @@ function renderFilmCard(movie, showtimes, cinema){
 
   const timesEl = stub.querySelector('.times');
   showtimes.forEach(s => {
-    const btn = document.createElement('button');
+    const btn = document.createElement('a');
+    btn.href = `booking.html?st=${s.id}`;
+    btn.className = 'time-btn';
+    btn.style.display = 'inline-block';
     btn.textContent = new Date(s.show_time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-    btn.addEventListener('click', () => {
-      timesEl.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      setSeatmapHeader(movie, s);
-      el('seats').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
     timesEl.appendChild(btn);
   });
 
