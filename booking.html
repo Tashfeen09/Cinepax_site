@@ -673,20 +673,26 @@ function updateSummary() {
 function setupEventListeners() {
   document.getElementById('checkoutBtn').addEventListener('click', () => {
     const seatsArray = Array.from(selectedSeats);
+    const total = document.getElementById('total').textContent;
+    console.log('✅ Checkout clicked');
+    console.log('Selected seats:', seatsArray);
+    console.log('Total:', total);
+    
     const summary = {
       showtimeId,
       seats: seatsArray,
-      total: document.getElementById('total').textContent
+      total: total
     };
     
     sessionStorage.setItem('bookingSummary', JSON.stringify(summary));
-    alert(`Booking ${seatsArray.join(', ')} - ${summary.total}\n\nPayment integration coming soon.`);
+    alert(`Booking ${seatsArray.join(', ')} - ${total}\n\n(Payment integration coming soon)`);
   });
 
   document.getElementById('promoBtn').addEventListener('click', () => {
     const code = document.getElementById('promoCode').value.trim().toUpperCase();
+    console.log('Promo code entered:', code);
     if (code) {
-      alert(`Promo code "${code}" applied! (Demo - actual validation coming soon)`);
+      alert(`Promo code "${code}" applied! (Demo)`);
     }
   });
 

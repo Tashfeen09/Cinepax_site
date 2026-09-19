@@ -481,6 +481,7 @@ async function loadCinemas(){
 }
 
 async function loadShowingsForCinema(cinemaId){
+  console.log('📍 Loading showtimes for cinema:', cinemaId);
   const cinema = cinemas.find(c => c.id === cinemaId);
   const { data, error } = await supabase
     .from('showtimes')
@@ -489,13 +490,17 @@ async function loadShowingsForCinema(cinemaId){
     .gte('show_time', new Date().toISOString())
     .order('show_time');
 
+  console.log('Response:', { error, dataCount: data?.length || 0 });
+  
   const filmRow = el('filmRow');
   filmRow.innerHTML = '';
 
   if (error || !data || data.length === 0) {
+    console.log('❌ No showtimes found');
     el('showingEmptyNote').style.display = 'block';
     return;
   }
+  console.log('✅ Showtimes loaded:', data);
   el('showingEmptyNote').style.display = 'none';
 
   // Group showtimes by movie
@@ -507,11 +512,13 @@ async function loadShowingsForCinema(cinemaId){
   });
   const groupList = [...groups.values()];
   if (groupList.length === 0) {
+    console.log('❌ No valid movies found');
     el('showingEmptyNote').style.display = 'block';
     return;
   }
 
   // Film row = one card per movie playing here
+  console.log('Rendering', groupList.length, 'film cards');
   groupList.forEach(({ movie, showtimes }) => renderFilmCard(movie, showtimes, cinema));
 }
 
@@ -523,6 +530,8 @@ function setSeatmapHeader(movie, showtime){
 }
 
 function renderFilmCard(movie, showtimes, cinema){
+  console.log(`Rendering film card: "${movie.title}" with ${showtimes.length} showtimes`);
+  
   const stub = document.createElement('div');
   stub.className = 'stub';
   stub.innerHTML = `
@@ -539,11 +548,18 @@ function renderFilmCard(movie, showtimes, cinema){
 
   const timesEl = stub.querySelector('.times');
   showtimes.forEach(s => {
+    const time = new Date(s.show_time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    console.log(`  → Creating link: ${time} (showtime ID: ${s.id})`);
+    
     const btn = document.createElement('a');
     btn.href = `booking.html?st=${s.id}`;
-    btn.className = 'time-btn';
+    btn.className = 'time-link';
     btn.style.display = 'inline-block';
-    btn.textContent = new Date(s.show_time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    btn.textContent = time;
+    btn.addEventListener('click', (e) => {
+      console.log('Clicked showtime link:', s.id);
+      // Link will navigate naturally
+    });
     timesEl.appendChild(btn);
   });
 

@@ -199,12 +199,13 @@ section{ padding: 48px 20px; max-width: 1200px; margin: 0 auto; }
 .stub-body .meta{ color: var(--muted); font-size: 0.76rem; font-family: 'IBM Plex Mono', monospace; }
 .stub-perf-h{ border-top: 1px dashed rgba(224,168,64,0.3); margin: 12px 0; }
 .times{ display:flex; flex-wrap: wrap; gap: 8px; }
-.times button, .times a{
+.times button, .times a, .time-link{
   background: transparent; border: 1px solid var(--magenta); color: var(--cream);
   font-family: 'IBM Plex Mono', monospace; font-size: 0.74rem; padding: 7px 10px;
   border-radius: 6px; cursor: pointer; text-decoration: none; display: inline-block;
+  transition: all 0.2s ease;
 }
-.times button:hover, .times button:focus-visible, .times a:hover, .times a:focus-visible{ background: var(--magenta); }
+.times button:hover, .times button:focus-visible, .times a:hover, .times a:focus-visible, .time-link:hover, .time-link:focus-visible{ background: var(--magenta); }
 .times button.active{ background: var(--magenta); }
 
 /* ===== Pick your seats ===== */
