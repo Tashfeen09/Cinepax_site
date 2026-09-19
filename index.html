@@ -456,20 +456,34 @@ async function loadHero(){
 
 /* ===================== CINEMAS + SHOWTIMES ===================== */
 
+// Cinemas that have at least one upcoming showtime (filled in by loadCinemas)
+let liveCinemaIds = new Set();
+
 async function loadCinemas(){
   const { data, error } = await supabase.from('cinemas').select('*').order('name');
   if (error || !data || data.length === 0) {
     el('cinemaSelect').innerHTML = '<option value="">No cinemas available</option>';
+    el('showingEmptyNote').textContent = 'No cinemas have been added yet.';
     el('showingEmptyNote').style.display = 'block';
     return;
   }
   cinemas = data;
-  const saved = localStorage.getItem('cinepaxCinemaId');
-  const defaultId = (saved && cinemas.some(c => c.id === saved)) ? saved : cinemas[0].id;
 
-  el('cinemaSelect').innerHTML = cinemas.map(c =>
-    `<option value="${c.id}">${escapeHtml(c.name)} \u2014 ${escapeHtml(c.city)}</option>`
-  ).join('');
+  // Which cinemas have anything coming up? Lets us avoid landing on an empty one.
+  const { data: upcoming } = await supabase.from('showtimes').select('cinema_id').gte('show_time', new Date().toISOString());
+  liveCinemaIds = new Set((upcoming || []).map(s => s.cinema_id));
+
+  const saved = localStorage.getItem('cinepaxCinemaId');
+  let defaultId = (saved && cinemas.some(c => c.id === saved)) ? saved : cinemas[0].id;
+  if (liveCinemaIds.size && !liveCinemaIds.has(defaultId)) {
+    const firstLive = cinemas.find(c => liveCinemaIds.has(c.id));
+    if (firstLive) defaultId = firstLive.id;
+  }
+
+  el('cinemaSelect').innerHTML = cinemas.map(c => {
+    const quiet = liveCinemaIds.size && !liveCinemaIds.has(c.id) ? ' (no upcoming shows)' : '';
+    return `<option value="${c.id}">${escapeHtml(c.name)} \u2014 ${escapeHtml(c.city)}${quiet}</option>`;
+  }).join('');
   el('cinemaSelect').value = defaultId;
 
   el('cinemaSelect').addEventListener('change', () => {
@@ -478,6 +492,14 @@ async function loadCinemas(){
   });
 
   loadShowingsForCinema(defaultId);
+}
+
+function showEmptyShowings(cinemaId){
+  const others = [...liveCinemaIds].some(id => id !== cinemaId);
+  el('showingEmptyNote').textContent = others
+    ? 'No upcoming showtimes at this cinema \u2014 pick another cinema above to see what\'s on.'
+    : 'No upcoming showtimes scheduled yet \u2014 check back soon.';
+  el('showingEmptyNote').style.display = 'block';
 }
 
 async function loadShowingsForCinema(cinemaId){
@@ -493,7 +515,7 @@ async function loadShowingsForCinema(cinemaId){
   filmRow.innerHTML = '';
 
   if (error || !data || data.length === 0) {
-    el('showingEmptyNote').style.display = 'block';
+    showEmptyShowings(cinemaId);
     return;
   }
   el('showingEmptyNote').style.display = 'none';
@@ -507,7 +529,7 @@ async function loadShowingsForCinema(cinemaId){
   });
   const groupList = [...groups.values()];
   if (groupList.length === 0) {
-    el('showingEmptyNote').style.display = 'block';
+    showEmptyShowings(cinemaId);
     return;
   }
 
