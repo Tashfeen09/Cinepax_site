@@ -332,6 +332,7 @@
     padding: 16px;
     border-radius: 6px;
     margin-bottom: 20px;
+    font-size: 0.9rem;
   }
 </style>
 </head>
@@ -342,7 +343,7 @@
 <header>
   <div class="nav-bar">
     <a href="index.html" class="brand" aria-label="Cinepax home"><span class="name">CINEPAX</span></a>
-    <a href="movie.html" class="back-link" id="backLink">← Back</a>
+    <a href="javascript:history.back()" class="back-link">← Back</a>
   </div>
 </header>
 
@@ -426,9 +427,9 @@
   <p class="loading-message">Loading showtime details...</p>
 </div>
 
-<div id="errorState" style="max-width: 1200px; margin: 60px auto; padding: 20px;">
+<div id="errorState" style="max-width: 1200px; margin: 60px auto; padding: 20px; display:none;">
   <div class="error-message" id="errorMessage"></div>
-  <div style="text-align: center;">
+  <div style="text-align: center; margin-top: 20px;">
     <a href="index.html" class="btn btn-primary">← Back to home</a>
   </div>
 </div>
@@ -440,8 +441,8 @@ const SUPABASE_URL = 'https://jonmnpnxtqavsrrjglet.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impvbm1ucG54dHFhdnNycmpnbGV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyMDc3MzcsImV4cCI6MjEwMTc4MzczN30.z36lYdzrTEbFyisYmj1LNqAIqHH28pKNhuI1WOLpaJQ';
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const BOOKING_TIMEOUT = 15 * 60 * 1000; // 15 minutes
-const SEAT_ROWS = 8; // A-H
+const BOOKING_TIMEOUT = 15 * 60 * 1000;
+const SEAT_ROWS = 8;
 const SEATS_PER_ROW = 8;
 
 let selectedSeats = new Set();
@@ -449,16 +450,22 @@ let showtimeData = null;
 let bookingId = null;
 
 const params = new URLSearchParams(location.search);
-const showtimeId = params.get('st'); // Showtime ID
+const showtimeId = params.get('st');
 
 async function init() {
+  console.log('%c=== CINEPAX BOOKING PAGE ===', 'color: #e0a840; font-weight: bold; font-size: 14px;');
+  console.log('Showtime ID from URL:', showtimeId);
+  
   if (!showtimeId) {
-    showError('No showtime selected. Please choose a showtime first.');
+    showError('❌ No showtime selected. Please click a showtime from the movie details page.');
     return;
   }
 
   try {
+    console.log('📍 Loading showtime data...');
     await loadShowtimeData();
+    console.log('✅ Showtime loaded successfully');
+    
     await loadSeatAvailability();
     renderSeatMap();
     setupTimer();
@@ -468,26 +475,36 @@ async function init() {
     document.getElementById('errorState').style.display = 'none';
     document.querySelector('main.booking-main').style.display = 'grid';
     document.getElementById('bookingTimer').style.display = 'block';
+    
+    console.log('✅ Booking page ready');
   } catch (err) {
-    console.error('Init error:', err);
-    showError('Failed to load booking details. Please try again.');
+    console.error('%c❌ ERROR', 'color: #ff8a8a; font-weight: bold;', err);
+    showError(`<strong>Error:</strong> ${err.message}`);
   }
 }
 
 async function loadShowtimeData() {
+  console.log('Fetching from showtimes table...');
+  
   const { data, error } = await supabase
     .from('showtimes')
-    .select('*, movies(*), cinemas(*)')
+    .select(`id, movie_id, cinema_id, screen, format, show_time, price_silver, price_gold, movies(id, title), cinemas(id, name, city)`)
     .eq('id', showtimeId)
     .maybeSingle();
 
-  if (error || !data) {
-    throw new Error('Showtime not found');
+  if (error) {
+    console.error('Supabase error:', error);
+    throw new Error(`Database error: ${error.message}`);
   }
 
+  if (!data) {
+    console.error('Showtime not found. ID was:', showtimeId);
+    throw new Error(`Showtime not found. Make sure you clicked a valid showtime.`);
+  }
+
+  console.log('Showtime data:', data);
   showtimeData = data;
 
-  // Render showtime info in sidebar
   const when = new Date(data.show_time).toLocaleString('en-GB', {
     weekday: 'short',
     day: 'numeric',
@@ -507,16 +524,13 @@ async function loadShowtimeData() {
   document.getElementById('silverPrice').textContent = data.price_silver;
   document.getElementById('goldPrice').textContent = data.price_gold;
 
-  // Set back link
   const movieId = data.movie_id;
-  document.getElementById('backLink').href = `movie.html?id=${movieId}`;
-
-  return showtimeData;
+  document.querySelector('.back-link').href = `movie.html?id=${movieId}`;
 }
 
 async function loadSeatAvailability() {
-  // For now, generate a mock seat map. In production, fetch from a bookings table.
-  // Create a persistent booking session
+  console.log('Loading seat availability...');
+  
   const bookingPayload = {
     showtime_id: showtimeId,
     created_at: new Date().toISOString(),
@@ -531,32 +545,8 @@ async function loadSeatAvailability() {
 
   if (!error && data) {
     bookingId = data.id;
+    console.log('Booking session created:', bookingId);
   }
-
-  // Generate mock seat data: mostly available, some taken
-  const seats = new Map();
-  const takenSeats = new Set(['B2', 'B7', 'D4']); // Mock taken seats
-
-  for (let row = 0; row < SEAT_ROWS; row++) {
-    for (let col = 0; col < SEATS_PER_ROW; col++) {
-      const rowLabel = String.fromCharCode(65 + row);
-      const seatNum = col + 1;
-      const seatId = `${rowLabel}${seatNum}`;
-      
-      const isTaken = takenSeats.has(seatId);
-      const isGold = row >= 2 && row <= 3; // Rows C & D are gold
-
-      seats.set(seatId, {
-        row: rowLabel,
-        number: seatNum,
-        taken: isTaken,
-        type: isGold ? 'gold' : 'silver',
-        price: isGold ? showtimeData.price_gold : showtimeData.price_silver
-      });
-    }
-  }
-
-  return seats;
 }
 
 function renderSeatMap() {
@@ -565,7 +555,6 @@ function renderSeatMap() {
 
   const seatRows = new Map();
 
-  // Generate seats grouped by row
   for (let row = 0; row < SEAT_ROWS; row++) {
     const rowLabel = String.fromCharCode(65 + row);
     seatRows.set(rowLabel, []);
@@ -587,10 +576,8 @@ function renderSeatMap() {
       if (isTaken) {
         seatBtn.classList.add('taken');
         seatBtn.disabled = true;
-        seatBtn.setAttribute('aria-label', `Seat ${seatId}, taken`);
       } else {
         if (isGold) seatBtn.classList.add('gold');
-        seatBtn.setAttribute('aria-label', `Seat ${seatId}`);
         seatBtn.addEventListener('click', toggleSeat);
       }
 
@@ -599,7 +586,6 @@ function renderSeatMap() {
     }
   }
 
-  // Render rows with labels and aisles
   seatRows.forEach((seats, rowLabel) => {
     const rowEl = document.createElement('div');
     rowEl.className = 'seat-row';
@@ -609,17 +595,14 @@ function renderSeatMap() {
     label.textContent = rowLabel;
     rowEl.appendChild(label);
 
-    // Left side of aisle
     for (let i = 0; i < 4; i++) {
       rowEl.appendChild(seats[i]);
     }
 
-    // Aisle
     const aisle = document.createElement('span');
     aisle.className = 'aisle';
     rowEl.appendChild(aisle);
 
-    // Right side of aisle
     for (let i = 4; i < 8; i++) {
       rowEl.appendChild(seats[i]);
     }
@@ -679,7 +662,6 @@ function updateSummary() {
   summaryEl.innerHTML = html;
   document.getElementById('checkoutBtn').disabled = false;
 
-  // Update pricing
   const gst = Math.round(subtotal * 0.17);
   const total = subtotal + gst;
 
@@ -697,18 +679,13 @@ function setupEventListeners() {
       total: document.getElementById('total').textContent
     };
     
-    // Store booking summary for payment page
     sessionStorage.setItem('bookingSummary', JSON.stringify(summary));
-    
-    // In production, redirect to payment gateway
-    // For now, show a confirmation
     alert(`Booking ${seatsArray.join(', ')} - ${summary.total}\n\nPayment integration coming soon.`);
   });
 
   document.getElementById('promoBtn').addEventListener('click', () => {
     const code = document.getElementById('promoCode').value.trim().toUpperCase();
     if (code) {
-      // TODO: Validate promo code against database
       alert(`Promo code "${code}" applied! (Demo - actual validation coming soon)`);
     }
   });
@@ -727,9 +704,8 @@ function setupTimer() {
     const remaining = endTime - Date.now();
     
     if (remaining <= 0) {
-      // Booking expired
       document.getElementById('bookingTimer').style.display = 'none';
-      showError('Your booking session has expired. Please select a showtime again.');
+      showError('⏱️ Your booking session has expired. Please select a showtime again.');
       document.querySelector('main.booking-main').style.display = 'none';
       return;
     }
@@ -744,14 +720,13 @@ function setupTimer() {
   updateTimer();
   const interval = setInterval(updateTimer, 1000);
 
-  // Cleanup on page unload
   window.addEventListener('beforeunload', () => clearInterval(interval));
 }
 
 function showError(message) {
   document.getElementById('loadingState').style.display = 'none';
   document.getElementById('errorState').style.display = 'block';
-  document.getElementById('errorMessage').textContent = message;
+  document.getElementById('errorMessage').innerHTML = message;
 }
 
 function escapeHtml(str) {
@@ -760,7 +735,6 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
-// Initialize on load
 init();
 </script>
 
